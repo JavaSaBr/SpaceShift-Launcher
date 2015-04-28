@@ -7,6 +7,7 @@ import rlib.ui.window.UIWindow;
 import rlib.util.array.Array;
 import rlib.util.array.ArrayFactory;
 
+import com.ss.launcher.file.engine.FileEngineManager;
 import com.ss.launcher.ui.LauncherUIWindow;
 import com.ss.launcher.ui.page.MainUIPage;
 
@@ -25,6 +26,9 @@ public class Launcher extends Application {
 	}
 
 	public static void main(String[] args) {
+
+		FileEngineManager.init();
+
 		launch(args);
 	}
 
