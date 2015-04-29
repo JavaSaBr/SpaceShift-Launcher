@@ -11,7 +11,14 @@ import com.ss.launcher.file.engine.FileEngineManager;
 import com.ss.launcher.ui.LauncherUIWindow;
 import com.ss.launcher.ui.page.MainUIPage;
 
+/**
+ * Стартовый класс лаунчера.
+ * 
+ * @author Ronn
+ */
 public class Launcher extends Application {
+
+	public static final String PROP_STYLE = "/com/ss/launcher/resources/css/style.css";
 
 	private static final Array<Class<? extends UIPage>> AVAILABLE_PAGE = ArrayFactory.newArray(Class.class);
 
@@ -26,9 +33,7 @@ public class Launcher extends Application {
 	}
 
 	public static void main(String[] args) {
-
 		FileEngineManager.init();
-
 		launch(args);
 	}
 
@@ -39,9 +44,8 @@ public class Launcher extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		instance = this;
 		window = new LauncherUIWindow(primaryStage, AVAILABLE_PAGE);
-		window.setTitle("SayoFXTool");
-		window.loadStylesheets("/ui/fx/css/base.css");
-		window.loadStylesheets("/ui/fx/css/custom_ids.css");
+		window.setTitle("SpaceShift Launcher");
+		window.loadStylesheets(PROP_STYLE);
 		window.showPage(MainUIPage.class);
 	}
 }

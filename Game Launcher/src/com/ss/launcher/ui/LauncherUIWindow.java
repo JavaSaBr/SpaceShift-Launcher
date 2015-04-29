@@ -1,14 +1,13 @@
 package com.ss.launcher.ui;
 
 import static javafx.geometry.Pos.BOTTOM_LEFT;
+import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.CENTER_RIGHT;
 import static javafx.scene.paint.Color.TRANSPARENT;
 
 import java.awt.Point;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -33,6 +32,15 @@ import rlib.util.array.Array;
  */
 public class LauncherUIWindow extends UndecoratedUIWindow {
 
+	private static final String CSS_CLASS_TITLE_VERSION_TEXT = "title-version-text";
+	private static final String CSS_CLASS_WINDOW_BACKGROUND = "window-background";
+	private static final String CSS_CLASS_TITLE_TEXT = "title-text";
+
+	private static final String CSS_ID_CLOSE_BUTTON = "CloseButton";
+
+	private static final Point PROP_TITLE_CONTAINER_SIZE = new Point(780, 52);
+
+	private static final Insets PROP_VERSION_LABEL_OFFSET = new Insets(0, 0, 0, 4);
 	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 5, 0, 0);
 
 	public static final int WINDOW_WIDTH = 800;
@@ -62,16 +70,13 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		final Scene scene = new Scene(getRootNode(), WINDOW_WIDTH, WINDOW_HEIGHT, Color.TRANSPARENT);
 		scene.setFill(TRANSPARENT);
 
-		final ObservableList<String> stylesheets = scene.getStylesheets();
-		stylesheets.add("/com/ss/launcher/resources/css/style.css");
-
 		return scene;
 	}
 
 	@Override
 	protected Pane createRoot() {
 		final Pane root = super.createRoot();
-		FXUtils.addClassTo(root, "window-background");
+		FXUtils.addClassTo(root, CSS_CLASS_WINDOW_BACKGROUND);
 		return root;
 	}
 
@@ -79,7 +84,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 	protected Button createCloseButton() {
 
 		final Button button = new Button("X");
-		button.setId("CloseButton");
+		button.setId(CSS_ID_CLOSE_BUTTON);
 		button.setOnAction(event -> close());
 
 		return button;
@@ -97,7 +102,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		header.setAlignment(CENTER_RIGHT);
 
 		HBox titleContainer = new HBox();
-		titleContainer.setAlignment(Pos.CENTER_LEFT);
+		titleContainer.setAlignment(CENTER_LEFT);
 
 		Label titleLabel = new Label("SPACESHIFT");
 		titleLabel.setTextAlignment(TextAlignment.LEFT);
@@ -107,9 +112,9 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		versionLabel.setTextAlignment(TextAlignment.LEFT);
 		versionLabel.setAlignment(BOTTOM_LEFT);
 
-		FXUtils.setFixedSize(titleContainer, new Point(780, 52));
-		FXUtils.addClassTo(titleLabel, "title-text");
-		FXUtils.addClassTo(versionLabel, "title-version-text");
+		FXUtils.setFixedSize(titleContainer, PROP_TITLE_CONTAINER_SIZE);
+		FXUtils.addClassTo(titleLabel, CSS_CLASS_TITLE_TEXT);
+		FXUtils.addClassTo(versionLabel, CSS_CLASS_TITLE_VERSION_TEXT);
 
 		FXUtils.bindFixedHeight(versionLabel, titleLabel.heightProperty().subtract(4));
 
@@ -117,7 +122,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		FXUtils.addToPane(versionLabel, titleContainer);
 		FXUtils.addToPane(titleContainer, header);
 
-		HBox.setMargin(versionLabel, new Insets(0, 0, 0, 4));
+		HBox.setMargin(versionLabel, PROP_VERSION_LABEL_OFFSET);
 
 		WindowDragHandler.install(header);
 
