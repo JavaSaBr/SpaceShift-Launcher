@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<project name="SpaceShiftLauncher" default="do-deploy" basedir="./build"  xmlns:fx="javafx:com.sun.javafx.tools.ant">
+	<project name="SpaceShift Launcher" default="do-deploy" basedir="./build"  xmlns:fx="javafx:com.sun.javafx.tools.ant">
 	<target name="init-fx-tasks">
 		<path id="fxant">
 			<filelist>
@@ -84,15 +84,15 @@
 		
 		<fx:resources id="appRes">
 			<fx:fileset dir="dist" includes="SpaceShiftLauncher.jar"/>
-			<fx:fileset dir="package" includes="linux/*"/>
+			<fx:fileset dir="dist" includes="libs/*"/>
 		</fx:resources> 
 		
 		<fx:application id="fxApplication"
-			name="SpaceShiftLauncher"
+			name="SpaceShift Launcher"
 			mainClass="com.ss.launcher.Launcher"
 			toolkit="fx"
 		/>
-		
+	
 		<mkdir dir="build/classes/META-INF" />
 		
 		<fx:jar destfile="dist/SpaceShiftLauncher.jar">
@@ -101,8 +101,8 @@
 			<fx:resources refid="appRes"/>
 			
 			<manifest>
-				<attribute name="Implementation-Vendor" value="javasabr@gmail.com"/>
-				<attribute name="Implementation-Title" value="SpaceShiftLauncher"/>
+				<attribute name="Implementation-Vendor" value="SpaceShift Team"/>
+				<attribute name="Implementation-Title" value="SpaceShift Launcher"/>
 				<attribute name="Implementation-Version" value="1.0"/>
 			</manifest>
 		</fx:jar>
@@ -116,11 +116,11 @@
 			includeDT="false"
 			offlineAllowed="true"
 			outdir="${basedir}/deploy"
-			outfile="SpaceShiftLauncher" nativeBundles="all"
+			outfile="SpaceShift Launcher" nativeBundles="all"
 			updatemode="background" >
-
-			<fx:preferences shortcut="true" menu="menu" install="false" />
-			<fx:info title="SpaceShiftLauncher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="games" />
+	
+			<fx:preferences shortcut="true" menu="true" />
+			<fx:info title="SpaceShift Launcher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="games" />
 			<fx:application refId="fxApplication"/>
 			<fx:resources refid="appRes"/>
 		</fx:deploy>
