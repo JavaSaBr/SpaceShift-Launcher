@@ -24,6 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import rlib.ui.page.impl.AbstractUIPage;
 import rlib.ui.util.FXUtils;
@@ -66,6 +67,8 @@ public class MainUIPage extends AbstractUIPage {
 
 	/** главная кнопка */
 	private Button mainButton;
+
+	private WebView webView;
 
 	/**
 	 * Проверка необходимости обновления клиента.
@@ -113,6 +116,13 @@ public class MainUIPage extends AbstractUIPage {
 		root = new VBox();
 		root.setAlignment(TOP_CENTER);
 
+		webView = new WebView();
+		webView.getEngine().load(getClass().getResource("/com/ss/launcher/resources/welcome.html").toExternalForm());
+		webView.setMaxWidth(656);
+		webView.setMaxHeight(376);
+		webView.setMinWidth(656);
+		webView.setMinHeight(376);
+
 		final HBox container = new HBox();
 		container.setAlignment(CENTER);
 
@@ -159,9 +169,11 @@ public class MainUIPage extends AbstractUIPage {
 		FXUtils.addToPane(progressBar, progressContainer);
 		FXUtils.addToPane(progressBarStatus, progressContainer);
 		FXUtils.addToPane(progressContainer, container);
+		FXUtils.addToPane(webView, root);
 		FXUtils.addToPane(container, root);
 
-		VBox.setMargin(container, new Insets(440, 0, 0, 0));
+		VBox.setMargin(container, new Insets(40, 0, 0, 0));
+		VBox.setMargin(webView, new Insets(20, 0, 0, 0));
 		HBox.setMargin(progressContainer, new Insets(0, 0, 0, 10));
 		HBox.setMargin(questionLabel, new Insets(0, 0, 0, 10));
 		HBox.setMargin(openChooserLabel, new Insets(0, 0, 0, 5));

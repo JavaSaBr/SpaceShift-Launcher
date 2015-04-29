@@ -27,20 +27,17 @@
 }
 
 #CloseButton {
+	-fx-background-image: url('/com/ss/launcher/resources/images/btn_close.png');
 	-fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
     -fx-border-width: 0px;
-    -fx-text-fill: gray;
-    -fx-font-family: "Arial";
-    -fx-font-size: 18;
-	-fx-font-weight: bold;
 	-fx-effect: null;
 }
 
 #CloseButton:hover {
-    -fx-text-fill: white;
+	-fx-background-image: url('/com/ss/launcher/resources/images/btn_close_hower.png');
 }
 
 .text-arial-14-white {
@@ -114,6 +111,5 @@
 .question-text-blue {
 	-fx-font-family: "Arial";
 	-fx-font-size: 14px;
-	-fx-font-weight: bold;
 	-fx-text-fill: rgb(19, 175, 240);
 }
