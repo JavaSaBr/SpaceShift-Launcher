@@ -1,0 +1,113 @@
+
+.window-background {
+	-fx-background-image: url('/com/ss/launcher/resources/images/background.png');
+	-fx-background-size: 800, 544;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+	-fx-background-color: transparent;
+}
+
+.title-text {
+	-fx-font-family: "Arial";
+	-fx-font-size: 18px;
+	-fx-font-weight: bold;
+	-fx-text-fill: linear-gradient(to right,
+		rgba(255, 255, 255, 1) 0%,
+		rgba(255, 255, 255, 1) 53%,
+		rgba(157, 157, 157, 1) 54%
+		rgba(157, 157, 157, 1) 100%
+	);
+	-fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1); 
+}
+
+.title-version-text {
+	-fx-font-family: "Arial";
+	-fx-font-size: 9px;
+	-fx-text-fill: white;
+}
+
+#CloseButton {
+	-fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0px;
+    -fx-text-fill: gray;
+    -fx-font-family: "Arial";
+    -fx-font-size: 18;
+	-fx-font-weight: bold;
+	-fx-effect: null;
+}
+
+#CloseButton:hover {
+    -fx-text-fill: white;
+}
+
+.text-arial-14-white {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-text-fill: white;
+}
+
+.main-button {
+    -fx-body-color: rgb(19, 175, 240);
+    -fx-background-color: -fx-body-color;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+	-fx-border-color: transparent;
+	-fx-border-radius: 0;
+	-fx-border-insets: 0;
+    -fx-padding: 0, 0, 0, 0;
+    -fx-text-fill: white;
+    -fx-alignment: CENTER;
+    -fx-content-display: LEFT;
+	-fx-effect: null;
+}
+
+.main-button:hover {
+    -fx-body-color: rgb(88, 175, 240);
+}
+
+.main-button:armed  {
+    -fx-body-color: rgb(0, 175, 240);
+}
+
+.main-button:focused {
+	-fx-background-color: -fx-body-color;
+}
+
+.progress-update-bar {
+    -fx-background-color: #323232;
+    -fx-indeterminate-bar-length: 150;
+    -fx-indeterminate-bar-escape: true;
+    -fx-indeterminate-bar-flip: true;
+    -fx-indeterminate-bar-animation-time: 2;
+	-fx-accent: rgb(19, 175, 240);
+}
+.progress-update-bar > .bar {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-accent, -7%), derive(-fx-accent, 0%), derive(-fx-accent, -3%), derive(-fx-accent, -9%) );
+    -fx-background-insets: 0 0 0 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0.75em;
+}
+.progress-update-bar:indeterminate > .bar {
+    -fx-background-color: linear-gradient(to left, transparent, -fx-accent);
+}
+.progress-update-bar > .track {
+    -fx-background-color: #323232;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+
+.progress-status-text {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-text-fill: white;
+}
+
+
+/*
+ * Шрифт в шапке: 18 пт
+цвет в шапке: SPACE - белый + семиболд SHIFT - 157 157 157 (9d9d9d) семилайт или лайт
++ межбуквенный интервал увеичен чутка что бы раздвинуть их
+ */

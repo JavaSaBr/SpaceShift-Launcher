@@ -1,22 +1,26 @@
 package com.ss.launcher.ui.page;
 
+import static com.ss.launcher.util.LauncherUtils.getCurrentVersion;
+import static com.ss.launcher.util.LauncherUtils.isNeedUpdate;
+import static javafx.application.Platform.runLater;
+import static javafx.geometry.Pos.CENTER;
+import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.TOP_CENTER;
 
 import java.awt.Point;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 import rlib.ui.page.impl.AbstractUIPage;
 import rlib.ui.util.FXUtils;
 import rlib.ui.window.UIWindow;
@@ -24,6 +28,7 @@ import rlib.ui.window.UIWindow;
 import com.ss.launcher.ExecutorManager;
 import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
+import com.ss.launcher.tasks.DownloadClientTask;
 import com.ss.launcher.tasks.UpdateClientTask;
 import com.ss.launcher.util.LauncherUtils;
 
@@ -36,23 +41,55 @@ public class MainUIPage extends AbstractUIPage {
 
 	public static final Insets PROP_LINE_OFFSET = new Insets(10, 0, 10, 0);
 
+	/** рут страницы */
 	private VBox root;
 
-	private ImageView logoImageView;
-
-	private Button updateClientButton;
-	private Button playButton;
-
+	/** прогресс бар */
 	private ProgressBar progressBar;
-
+	/** статус прогресс бара */
 	private Label progressBarStatus;
 
-	@Override
-	public void postPageShow(final UIWindow window) {
-		super.postPageShow(window);
+	/** главная кнопка */
+	private Button mainButton;
 
-		window.setSize(1000, 600);
-		window.setRezisable(true);
+	/**
+	 * Проверка необходимости обновления клиента.
+	 */
+	protected void checkUpdate() {
+
+		final Button mainButton = getMainButton();
+		final Label progressBarStatus = getProgressBarStatus();
+
+		try {
+
+			if(!isNeedUpdate()) {
+				runLater(() -> {
+
+					mainButton.setText("Играть");
+					mainButton.setOnAction(event -> processPlay());
+					mainButton.setDisable(false);
+
+					progressBarStatus.setText("Текущая версия клиента " + getCurrentVersion());
+				});
+			} else {
+				runLater(() -> {
+
+					mainButton.setText("Обновить");
+					mainButton.setOnAction(event -> processUpdate());
+					mainButton.setDisable(false);
+
+					progressBarStatus.setText("Требуется обновление клиента");
+				});
+			}
+
+		} catch(final Exception e) {
+			runLater(() -> {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText(e.getLocalizedMessage());
+				alert.setTitle("Ошибка");
+				alert.showAndWait();
+			});
+		}
 	}
 
 	@Override
@@ -61,91 +98,106 @@ public class MainUIPage extends AbstractUIPage {
 		root = new VBox();
 		root.setAlignment(TOP_CENTER);
 
-		createSplitLine(root);
-		createLogo();
-		createProgressBar();
-		createButtons();
+		final HBox container = new HBox();
+		container.setAlignment(CENTER);
 
-		return root;
-	}
+		mainButton = new Button();
 
-	protected void createProgressBar() {
+		final StackPane progressContainer = new StackPane();
 
 		progressBar = new ProgressBar(0);
 		progressBar.setId("HangarProgressStrength");
 
 		progressBarStatus = new Label();
+		progressBarStatus.setAlignment(CENTER_LEFT);
 
-		VBox.setMargin(progressBarStatus, new Insets(10, 0, 0, 0));
+		FXUtils.bindFixedWidth(progressBarStatus, progressBar.widthProperty().subtract(10));
 
-		FXUtils.addClassTo(progressBarStatus, "arial-label-17");
+		FXUtils.addClassTo(mainButton, "main-button");
+		FXUtils.addClassTo(mainButton, "text-arial-14-white");
+		FXUtils.addClassTo(progressBar, "progress-update-bar");
+		FXUtils.addClassTo(progressBarStatus, "progress-status-text");
 
-		FXUtils.setFixedSize(progressBar, new Point(800, 10));
-		FXUtils.addToPane(progressBarStatus, root);
-		FXUtils.addToPane(progressBar, root);
+		FXUtils.setFixedSize(mainButton, new Point(140, 34));
+		FXUtils.setFixedSize(progressBar, new Point(564, 20));
+
+		FXUtils.addToPane(mainButton, container);
+		FXUtils.addToPane(progressBar, progressContainer);
+		FXUtils.addToPane(progressBarStatus, progressContainer);
+		FXUtils.addToPane(progressContainer, container);
+		FXUtils.addToPane(container, root);
+
+		VBox.setMargin(container, new Insets(440, 0, 0, 0));
+		HBox.setMargin(progressContainer, new Insets(0, 0, 0, 10));
+
+		return root;
 	}
 
-	protected void createButtons() {
-
-		final HBox buttonContainer = new HBox();
-		buttonContainer.setAlignment(Pos.CENTER);
-
-		updateClientButton = new Button();
-		updateClientButton.setText("Проверить обновление");
-		updateClientButton.setOnAction(event -> processUpdate());
-
-		playButton = new Button();
-		playButton.setText("Играть");
-		playButton.setOnAction(event -> processPlay());
-
-		FXUtils.addClassTo(updateClientButton, "arial-label-17");
-		FXUtils.addClassTo(playButton, "arial-label-17");
-		FXUtils.setFixedSize(updateClientButton, new Point(300, 26));
-		FXUtils.setFixedSize(playButton, new Point(300, 26));
-
-		FXUtils.addToPane(updateClientButton, buttonContainer);
-		FXUtils.addToPane(playButton, buttonContainer);
-		FXUtils.addToPane(buttonContainer, root);
-
-		VBox.setMargin(buttonContainer, new Insets(10, 0, 0, 0));
-		HBox.setMargin(updateClientButton, new Insets(0, 5, 0, 0));
-		HBox.setMargin(playButton, new Insets(0, 0, 0, 5));
+	/**
+	 * @return главная кнопка.
+	 */
+	public Button getMainButton() {
+		return mainButton;
 	}
 
-	public Button getPlayButton() {
-		return playButton;
-	}
-
-	public Button getUpdateClientButton() {
-		return updateClientButton;
-	}
-
+	/**
+	 * @return прогресс бар.
+	 */
 	public ProgressBar getProgressBar() {
 		return progressBar;
 	}
 
+	/**
+	 * @return статус прогресс бара.
+	 */
 	public Label getProgressBarStatus() {
 		return progressBarStatus;
 	}
 
-	private void processUpdate() {
+	@Override
+	public void postPageShow(final UIWindow window) {
+		super.postPageShow(window);
 
-		final Button playButton = getPlayButton();
-		playButton.setDisable(true);
+		window.setRezisable(true);
 
-		final Button updateClientButton = getUpdateClientButton();
-		updateClientButton.setDisable(true);
+		final Button mainButton = getMainButton();
+		mainButton.setText("Проверка...");
+		mainButton.setDisable(true);
 
-		final ExecutorManager executorManager = ExecutorManager.getInstance();
-		executorManager.async(new UpdateClientTask(this));
+		updateMainButton();
 	}
 
-	protected void createLogo() {
+	/**
+	 * Обновление главной кнопки.
+	 */
+	public void updateMainButton() {
 
-		logoImageView = new ImageView();
-		logoImageView.setImage(new Image("/com/ss/launcher/resources/logo.png"));
+		final Button mainButton = getMainButton();
+		final Path clientFile = LauncherUtils.getClientFile();
 
-		FXUtils.addToPane(logoImageView, root);
+		if(!Files.exists(clientFile)) {
+			mainButton.setText("Скачать");
+			mainButton.setOnAction(event -> processDownload());
+			mainButton.setDisable(false);
+			return;
+		}
+
+		final ExecutorManager executorManager = ExecutorManager.getInstance();
+		executorManager.async(() -> {
+			checkUpdate();
+		});
+	}
+
+	/**
+	 * Процесс скачивания клиента.
+	 */
+	private void processDownload() {
+
+		final Button mainButton = getMainButton();
+		mainButton.setDisable(true);
+
+		final ExecutorManager executorManager = ExecutorManager.getInstance();
+		executorManager.async(new DownloadClientTask(this));
 	}
 
 	/**
@@ -171,17 +223,12 @@ public class MainUIPage extends AbstractUIPage {
 		}
 	}
 
-	/**
-	 * Создание разделительной линии.
-	 */
-	protected void createSplitLine(final VBox container) {
+	private void processUpdate() {
 
-		final Line splitLine = new Line();
-		splitLine.setId("BlueGradientHorizontalLine");
-		splitLine.setStartX(0);
-		splitLine.endXProperty().bind(container.widthProperty());
+		final Button mainButton = getMainButton();
+		mainButton.setDisable(true);
 
-		VBox.setMargin(splitLine, PROP_LINE_OFFSET);
-		FXUtils.addToPane(splitLine, container);
+		final ExecutorManager executorManager = ExecutorManager.getInstance();
+		executorManager.async(new UpdateClientTask(this));
 	}
 }

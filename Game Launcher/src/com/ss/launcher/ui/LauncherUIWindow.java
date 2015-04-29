@@ -1,13 +1,18 @@
 package com.ss.launcher.ui;
 
-import static javafx.geometry.Pos.CENTER;
+import static javafx.geometry.Pos.BOTTOM_LEFT;
 import static javafx.geometry.Pos.CENTER_RIGHT;
 import static javafx.scene.paint.Color.TRANSPARENT;
+
+import java.awt.Point;
+
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -28,16 +33,10 @@ import rlib.util.array.Array;
  */
 public class LauncherUIWindow extends UndecoratedUIWindow {
 
-	public static final String CSS_FILE_BASE = "/ui/fx/css/base.css";
-	public static final String CSS_FILE_EXTERNAL = "/ui/fx/css/external.css";
-	public static final String CSS_FILE_CUSTOM_IDS = "/ui/fx/css/custom_ids.css";
-	public static final String CSS_FILE_CUSTOM_CLASSES = "/ui/fx/css/custom_classes.css";
+	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 5, 0, 0);
 
-	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(4, 40, 0, 0);
-	private static final Insets PROP_TITLE_OFFSET = new Insets(10, 0, 0, 0);
-
-	public static final int WINDOW_WIDTH = 1000;
-	public static final int WINDOW_HEIGHT = 500;
+	public static final int WINDOW_WIDTH = 800;
+	public static final int WINDOW_HEIGHT = 544;
 
 	public LauncherUIWindow(Stage stage, Array<Class<? extends UIPage>> availablePages) {
 		super(stage, availablePages);
@@ -64,20 +63,15 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		scene.setFill(TRANSPARENT);
 
 		final ObservableList<String> stylesheets = scene.getStylesheets();
-		stylesheets.add(CSS_FILE_BASE);
-		stylesheets.add(CSS_FILE_EXTERNAL);
-		stylesheets.add(CSS_FILE_CUSTOM_IDS);
-		stylesheets.add(CSS_FILE_CUSTOM_CLASSES);
+		stylesheets.add("/com/ss/launcher/resources/css/style.css");
 
 		return scene;
 	}
 
 	@Override
 	protected Pane createRoot() {
-
 		final Pane root = super.createRoot();
-		root.setId("BlackBlueGradientBackground");
-
+		FXUtils.addClassTo(root, "window-background");
 		return root;
 	}
 
@@ -85,7 +79,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 	protected Button createCloseButton() {
 
 		final Button button = new Button("X");
-		button.setId("GameDraggablePanelButtonClose");
+		button.setId("CloseButton");
 		button.setOnAction(event -> close());
 
 		return button;
@@ -102,16 +96,28 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		final StackPane header = new StackPane();
 		header.setAlignment(CENTER_RIGHT);
 
-		Label titleLabel = new Label("SpaceShift Launcher");
-		titleLabel.setTextAlignment(TextAlignment.CENTER);
-		titleLabel.setAlignment(CENTER);
+		HBox titleContainer = new HBox();
+		titleContainer.setAlignment(Pos.CENTER_LEFT);
 
-		FXUtils.bindFixedWidth(titleLabel, header.widthProperty());
+		Label titleLabel = new Label("SPACESHIFT");
+		titleLabel.setTextAlignment(TextAlignment.LEFT);
+		titleLabel.setAlignment(BOTTOM_LEFT);
 
-		FXUtils.addToPane(titleLabel, header);
-		FXUtils.addClassTo(titleLabel, "arial-label-20-bold-with-shadow");
+		Label versionLabel = new Label("ALPHA");
+		versionLabel.setTextAlignment(TextAlignment.LEFT);
+		versionLabel.setAlignment(BOTTOM_LEFT);
 
-		StackPane.setMargin(titleLabel, PROP_TITLE_OFFSET);
+		FXUtils.setFixedSize(titleContainer, new Point(780, 52));
+		FXUtils.addClassTo(titleLabel, "title-text");
+		FXUtils.addClassTo(versionLabel, "title-version-text");
+
+		FXUtils.bindFixedHeight(versionLabel, titleLabel.heightProperty().subtract(4));
+
+		FXUtils.addToPane(titleLabel, titleContainer);
+		FXUtils.addToPane(versionLabel, titleContainer);
+		FXUtils.addToPane(titleContainer, header);
+
+		HBox.setMargin(versionLabel, new Insets(0, 0, 0, 4));
 
 		WindowDragHandler.install(header);
 

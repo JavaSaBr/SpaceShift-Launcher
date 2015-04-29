@@ -25,16 +25,16 @@ import com.ss.launcher.ui.page.MainUIPage;
 import com.ss.launcher.util.LauncherUtils;
 
 /**
- * Реализация задачи по обновлению клиента.
+ * Реализация задачи по скачиванию клиента.
  * 
  * @author Ronn
  */
-public class UpdateClientTask implements SafeTask {
+public class DownloadClientTask implements SafeTask {
 
 	/** главная страница лаунчера */
 	private final MainUIPage page;
 
-	public UpdateClientTask(MainUIPage page) {
+	public DownloadClientTask(MainUIPage page) {
 		this.page = page;
 	}
 
@@ -58,7 +58,7 @@ public class UpdateClientTask implements SafeTask {
 			final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
 			final String lastVersion = fileEngine.getContent(Config.FILE_LAST_VERSION_URL);
 
-			runLater(() -> progressBarStatus.setText("Обновление клиента до версии " + lastVersion));
+			runLater(() -> progressBarStatus.setText("Подготовка к загрузке клиента версии " + lastVersion));
 			runLater(() -> progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS));
 
 			final Path gameFolder = LauncherUtils.getGameFolder();
@@ -133,7 +133,7 @@ public class UpdateClientTask implements SafeTask {
 
 			LauncherUtils.updateVersion(lastVersion);
 
-			runLater(() -> progressBarStatus.setText("Клиент был успешно обновлен до версии " + lastVersion));
+			runLater(() -> progressBarStatus.setText("Клиент был успешно загружен."));
 
 		} catch(Exception e) {
 			handleException(e);
@@ -147,8 +147,6 @@ public class UpdateClientTask implements SafeTask {
 	 * Обработка ошибки.
 	 */
 	protected void handleException(Exception e) {
-		e.printStackTrace();
-
 		runLater(() -> {
 			final Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Ошибка");

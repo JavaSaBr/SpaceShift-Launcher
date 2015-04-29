@@ -12,9 +12,12 @@ import rlib.util.FileUtils;
 import rlib.util.StringUtils;
 import rlib.util.Util;
 
+import com.ss.launcher.Config;
 import com.ss.launcher.Launcher;
 import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
+import com.ss.launcher.file.engine.FileEngine;
+import com.ss.launcher.file.engine.FileEngineManager;
 
 /**
  * Набор утильных методов для лаунчера.
@@ -32,7 +35,7 @@ public class LauncherUtils {
 	/**
 	 * @return получение файла для запуска клиента.
 	 */
-	protected static Path getClientFile() {
+	public static Path getClientFile() {
 
 		final Path rootFolder = Util.getRootFolderFromClass(Launcher.class);
 		final Path targetFile = Paths.get(rootFolder.toString(), FOLDER_GAME, FILE_SPACESHIFT_JAR);
@@ -179,5 +182,18 @@ public class LauncherUtils {
 		} catch(final Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * @return надо ли обновлять клиента.
+	 */
+	public static boolean isNeedUpdate() {
+
+		final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
+
+		final String lastVersion = fileEngine.getContent(Config.FILE_LAST_VERSION_URL);
+		final String currentVersion = LauncherUtils.getCurrentVersion();
+
+		return !StringUtils.equals(lastVersion, currentVersion);
 	}
 }
