@@ -65,8 +65,6 @@
 		<copy todir="build/classes">
 			<fileset dir="project/src">
 				<exclude name="**/*.java"/>
-				<exclude name="**/*.png"/>
-				<exclude name="**/*.ico"/>
 			</fileset>
 		</copy>
 	</target>
