@@ -16,22 +16,16 @@
 		<delete dir="externalLibs" />
 		<delete dir="project" />
 		<delete dir="projectRefs" />
-		<delete dir="game" />
 		
 		<mkdir dir="externalLibs" />
-		<mkdir dir="game" />
-		
-		<copy todir="game">
-			<fileset dir="/media/ronn/Main/Work/Repository/spaceshift-launcher/Game Launcher/game" />
-		</copy>
 		
 		<copy todir="externalLibs">
-			<fileset dir="/media/ronn/Main/Work/Repository/spaceshift-launcher/Game Launcher/lib" />
+			<fileset dir="../lib" />
 		</copy>
 		
 		<mkdir dir="project" />
 		<copy todir="project">
-			<fileset dir="/media/ronn/Main/Work/Repository/spaceshift-launcher/Game Launcher">
+			<fileset dir="../">
 				<include name="src/**" />
 			</fileset>
 		</copy>
@@ -81,7 +75,6 @@
 		
 		<mkdir dir="dist" />
 		<mkdir dir="dist/libs" />
-		<mkdir dir="dist/game" />
 		
 		<copy todir="dist/libs">
 			<fileset dir="externalLibs">
@@ -89,15 +82,9 @@
 			</fileset>
 		</copy>
 		
-		<copy todir="dist/game">
-			<fileset dir="game" />
-		</copy>
-		
 		<fx:resources id="appRes">
 			<fx:fileset dir="dist" includes="SpaceShiftLauncher.jar"/>
 			<fx:fileset dir="dist" includes="libs/*"/>
-			<fx:fileset dir="dist" includes="game/*"/>
-			<fx:fileset dir="dist" includes="game/game_lib/*"/>
 		</fx:resources> 
 		
 		<fx:application id="fxApplication"
@@ -115,7 +102,7 @@
 			
 			<manifest>
 				<attribute name="Implementation-Vendor" value="javasabr@gmail.com"/>
-				<attribute name="Implementation-Title" value=""/>
+				<attribute name="Implementation-Title" value="SpaceShift Launcher"/>
 				<attribute name="Implementation-Version" value="1.0"/>
 			</manifest>
 		</fx:jar>

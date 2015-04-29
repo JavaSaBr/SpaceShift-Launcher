@@ -37,8 +37,8 @@ public class LauncherUtils {
 	 */
 	public static Path getClientFile() {
 
-		final Path rootFolder = Util.getRootFolderFromClass(Launcher.class);
-		final Path targetFile = Paths.get(rootFolder.toString(), FOLDER_GAME, FILE_SPACESHIFT_JAR);
+		final Path gameFolder = getGameFolder();
+		final Path targetFile = Paths.get(gameFolder.toString(), FILE_SPACESHIFT_JAR);
 
 		return targetFile;
 	}
@@ -70,8 +70,18 @@ public class LauncherUtils {
 	 * @return путь к папке с самим клиентом.
 	 */
 	public static Path getGameFolder() {
-		final Path rootFolder = Util.getRootFolderFromClass(Launcher.class);
-		return Paths.get(rootFolder.toString(), FOLDER_GAME);
+
+		final Path gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
+		
+		if(!Files.exists(gameFolder)) {
+			try {
+				Files.createDirectories(gameFolder);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return gameFolder;
 	}
 
 	public static String getSystemJavaVersion() {
