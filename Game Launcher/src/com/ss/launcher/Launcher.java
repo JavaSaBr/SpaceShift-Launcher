@@ -1,6 +1,8 @@
 package com.ss.launcher;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import rlib.ui.page.UIPage;
 import rlib.ui.window.UIWindow;
@@ -10,6 +12,7 @@ import rlib.util.array.ArrayFactory;
 import com.ss.launcher.file.engine.FileEngineManager;
 import com.ss.launcher.ui.LauncherUIWindow;
 import com.ss.launcher.ui.page.MainUIPage;
+import com.sun.javafx.PlatformUtil;
 
 /**
  * Стартовый класс лаунчера.
@@ -17,6 +20,8 @@ import com.ss.launcher.ui.page.MainUIPage;
  * @author Ronn
  */
 public class Launcher extends Application {
+
+	public static final String LINUX_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.png";
 
 	public static final String PROP_STYLE = "/com/ss/launcher/resources/css/style.css";
 
@@ -42,6 +47,10 @@ public class Launcher extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		final ObservableList<Image> icons = primaryStage.getIcons();
+		icons.add(new Image(LINUX_ICON));
+
 		instance = this;
 		window = new LauncherUIWindow(primaryStage, AVAILABLE_PAGE);
 		window.setTitle("SpaceShift Launcher");
