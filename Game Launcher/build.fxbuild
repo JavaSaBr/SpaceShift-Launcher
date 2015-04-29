@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
-<anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://at.bestsolution.efxclipse.tooling.jdt/1.0" buildDirectory="${project}/build">
-  <deploy includeDT="true" packagingFormat="all">
-    <application name="SpaceShift Launcher" mainclass="com.ss.launcher.Launcher" version="1.0" toolkit="fx"/>
-    <info vendor="javasabr@gmail.com"/>
+<anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0">
+  <deploy>
+    <application/>
+    <info/>
   </deploy>
   <signjar/>
-  <manifestEntries name="Main-Class" value="com.ss.launcher.Launcher"/>
 </anttasks:AntTask>
