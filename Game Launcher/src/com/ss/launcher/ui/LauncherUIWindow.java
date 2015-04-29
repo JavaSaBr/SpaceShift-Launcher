@@ -7,10 +7,12 @@ import static javafx.scene.paint.Color.TRANSPARENT;
 
 import java.awt.Point;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -25,12 +27,17 @@ import rlib.ui.window.UIWindow;
 import rlib.ui.window.impl.UndecoratedUIWindow;
 import rlib.util.array.Array;
 
+import com.sun.javafx.PlatformUtil;
+
 /**
  * Реализация окна лаунчера.
  * 
  * @author Ronn
  */
 public class LauncherUIWindow extends UndecoratedUIWindow {
+
+	public static final String LINUX_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.png";
+	public static final String WIN_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.ico";
 
 	private static final String CSS_CLASS_TITLE_VERSION_TEXT = "title-version-text";
 	private static final String CSS_CLASS_WINDOW_BACKGROUND = "window-background";
@@ -50,6 +57,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		super(stage, availablePages);
 	}
 
+	@SuppressWarnings("restriction")
 	@Override
 	protected Stage configureStage(Stage stage) {
 		stage.initStyle(StageStyle.TRANSPARENT);
@@ -58,6 +66,15 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		stage.setMinHeight(WINDOW_HEIGHT);
 		stage.setMaxWidth(WINDOW_WIDTH);
 		stage.setMinWidth(WINDOW_WIDTH);
+
+		final ObservableList<Image> icons = stage.getIcons();
+
+		if(PlatformUtil.isWindows()) {
+			icons.add(new Image(getClass().getResourceAsStream(WIN_ICON)));
+		} else if(PlatformUtil.isLinux()) {
+			icons.add(new Image(getClass().getResourceAsStream(LINUX_ICON)));
+		}
+
 		return stage;
 	}
 
