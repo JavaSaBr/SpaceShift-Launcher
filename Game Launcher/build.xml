@@ -5,6 +5,7 @@
 			<filelist>
 				<file name="${java.home}/../lib/ant-javafx.jar"/>
 				<file name="${java.home}/lib/jfxrt.jar"/>
+				<file name="${basedir}"/>
 			</filelist>
 		</path>
 	
@@ -85,6 +86,7 @@
 		<fx:resources id="appRes">
 			<fx:fileset dir="dist" includes="SpaceShiftLauncher.jar"/>
 			<fx:fileset dir="dist" includes="libs/*"/>
+			<fx:fileset dir="package" />
 		</fx:resources> 
 		
 		<fx:application id="fxApplication"
