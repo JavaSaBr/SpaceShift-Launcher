@@ -10,10 +10,8 @@ import java.util.List;
 
 import rlib.util.FileUtils;
 import rlib.util.StringUtils;
-import rlib.util.Util;
 
 import com.ss.launcher.Config;
-import com.ss.launcher.Launcher;
 import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
 import com.ss.launcher.file.engine.FileEngine;
@@ -71,16 +69,22 @@ public class LauncherUtils {
 	 */
 	public static Path getGameFolder() {
 
-		final Path gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
-		
+		Path gameFolder = null;
+
+		if(Config.gameFolder == null) {
+			gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
+		} else {
+			gameFolder = Paths.get(Config.gameFolder);
+		}
+
 		if(!Files.exists(gameFolder)) {
 			try {
 				Files.createDirectories(gameFolder);
-			} catch (IOException e) {
+			} catch(IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 		return gameFolder;
 	}
 

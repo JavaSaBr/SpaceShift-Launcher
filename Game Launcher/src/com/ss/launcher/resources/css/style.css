@@ -105,9 +105,15 @@
 	-fx-text-fill: white;
 }
 
+.question-text-white {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-text-fill: white;
+}
 
-/*
- * Шрифт в шапке: 18 пт
-цвет в шапке: SPACE - белый + семиболд SHIFT - 157 157 157 (9d9d9d) семилайт или лайт
-+ межбуквенный интервал увеичен чутка что бы раздвинуть их
- */
+.question-text-blue {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-font-weight: bold;
+	-fx-text-fill: rgb(19, 175, 240);
+}

@@ -7,12 +7,10 @@ import static javafx.scene.paint.Color.TRANSPARENT;
 
 import java.awt.Point;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -26,8 +24,6 @@ import rlib.ui.util.FXUtils;
 import rlib.ui.window.UIWindow;
 import rlib.ui.window.impl.UndecoratedUIWindow;
 import rlib.util.array.Array;
-
-import com.sun.javafx.PlatformUtil;
 
 /**
  * Реализация окна лаунчера.

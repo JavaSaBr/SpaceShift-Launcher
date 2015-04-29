@@ -12,7 +12,6 @@ import rlib.util.array.ArrayFactory;
 import com.ss.launcher.file.engine.FileEngineManager;
 import com.ss.launcher.ui.LauncherUIWindow;
 import com.ss.launcher.ui.page.MainUIPage;
-import com.sun.javafx.PlatformUtil;
 
 /**
  * Стартовый класс лаунчера.
@@ -38,6 +37,7 @@ public class Launcher extends Application {
 	}
 
 	public static void main(String[] args) {
+		Config.init();
 		FileEngineManager.init();
 		launch(args);
 	}
@@ -47,7 +47,7 @@ public class Launcher extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
+
 		final ObservableList<Image> icons = primaryStage.getIcons();
 		icons.add(new Image(LINUX_ICON));
 
