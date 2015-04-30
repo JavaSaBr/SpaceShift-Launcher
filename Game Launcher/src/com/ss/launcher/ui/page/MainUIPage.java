@@ -12,9 +12,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javafx.application.HostServices;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
@@ -25,18 +25,20 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.PopupFeatures;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.util.Callback;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
+
 import rlib.ui.page.impl.AbstractUIPage;
 import rlib.ui.util.FXUtils;
 import rlib.ui.window.UIWindow;
@@ -48,7 +50,6 @@ import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
 import com.ss.launcher.tasks.DownloadClientTask;
 import com.ss.launcher.tasks.UpdateClientTask;
-import com.ss.launcher.ui.browser.WindowBrowser;
 import com.ss.launcher.util.LauncherUtils;
 
 /**
@@ -61,6 +62,10 @@ public class MainUIPage extends AbstractUIPage {
 	public static final String PROP_DEFAULT_HTML = "/com/ss/launcher/resources/welcome.html";
 	public static final String PROP_INDEX_HTML = "http://spaceshift.ru/upd/index.html";
 
+	public static final String EVENT_TYPE_CLICK = "click";
+	public static final String EVENT_TYPE_MOUSEOVER = "mouseover";
+	public static final String EVENT_TYPE_MOUSEOUT = "mouseclick";
+
 	public static final Point PROP_MAIN_BUTTON_SIZE = new Point(140, 34);
 
 	public static final Insets PROP_LINE_OFFSET = new Insets(10, 0, 10, 0);
@@ -70,6 +75,20 @@ public class MainUIPage extends AbstractUIPage {
 
 	public static final int PROP_BROWSER_HEIGHT = 768;
 	public static final int PROP_BROWSER_WIDTH = 1300;
+
+	private static final EventListener LINK_EVENT_HANDLER = event -> {
+
+		final String eventType = event.getType();
+
+		if(eventType.equals(EVENT_TYPE_CLICK)) {
+
+			final String href = ((Element) event.getTarget()).getAttribute("href");
+
+			final Launcher launcher = Launcher.getInstance();
+			final HostServices hostServices = launcher.getHostServices();
+			hostServices.showDocument(href);
+		}
+	};
 
 	/** рут страницы */
 	private VBox root;
@@ -148,29 +167,8 @@ public class MainUIPage extends AbstractUIPage {
 		webView.setMinHeight(PROP_WEB_VIEW_HEIGHT);
 
 		final WebEngine engine = webView.getEngine();
-		engine.setCreatePopupHandler(new Callback<PopupFeatures, WebEngine>() {
-
-			@Override
-			public WebEngine call(PopupFeatures features) {
-
-				final WindowBrowser windowBrowser = new WindowBrowser();
-				final WebView webView = windowBrowser.getWebView();
-
-				final Stage stage = new Stage(StageStyle.DECORATED);
-				stage.setTitle("Браузер");
-				stage.setScene(new Scene(windowBrowser));
-				stage.setWidth(PROP_BROWSER_WIDTH);
-				stage.setHeight(PROP_BROWSER_HEIGHT);
-
-				final ObservableList<Image> icons = stage.getIcons();
-				icons.add(new Image(Launcher.LINUX_ICON));
-
-				stage.show();
-
-				FXUtils.bindFixedSize(windowBrowser, stage.widthProperty(), stage.heightProperty());
-
-				return webView.getEngine();
-			}
+		engine.setCreatePopupHandler(features -> {
+			return null;
 		});
 
 		final Worker<Void> loadWorker = engine.getLoadWorker();
@@ -179,6 +177,14 @@ public class MainUIPage extends AbstractUIPage {
 
 			if(newValue == State.FAILED) {
 				engine.load(getClass().getResource(PROP_DEFAULT_HTML).toExternalForm());
+			} else if(newValue == State.SUCCEEDED) {
+
+				final Document doc = engine.getDocument();
+				final NodeList nodeList = doc.getElementsByTagName("a");
+
+				for(int i = 0; i < nodeList.getLength(); i++) {
+					((EventTarget) nodeList.item(i)).addEventListener(EVENT_TYPE_CLICK, LINK_EVENT_HANDLER, false);
+				}
 			}
 		});
 
