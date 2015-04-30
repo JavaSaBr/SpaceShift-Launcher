@@ -226,7 +226,7 @@ public class MainUIPage extends AbstractUIPage {
 		FXUtils.addToPane(webView, root);
 		FXUtils.addToPane(container, root);
 
-		VBox.setMargin(container, new Insets(10, 0, 0, 0));
+		VBox.setMargin(container, new Insets(13, 0, 0, 0));
 		VBox.setMargin(webView, new Insets(0, 0, 0, 0));
 		HBox.setMargin(progressContainer, new Insets(0, 0, 0, 10));
 		HBox.setMargin(questionLabel, new Insets(0, 0, 0, 10));

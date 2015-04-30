@@ -121,8 +121,8 @@
 			outfile="SpaceShift Launcher" nativeBundles="all"
 			updatemode="background" verbose="true" >
 	
-			<fx:preferences shortcut="true" menu="true" />
-			<fx:info title="SpaceShift Launcher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="games" />
+			<fx:preferences shortcut="true" menu="true" install="true" description="Launcher for SpaceShift" />
+			<fx:info title="SpaceShift Launcher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="Games" />
 			<fx:application refId="fxApplication"/>
 			<fx:resources refid="appRes"/>
 		</fx:deploy>
