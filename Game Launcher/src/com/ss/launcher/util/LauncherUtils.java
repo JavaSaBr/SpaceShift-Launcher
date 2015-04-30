@@ -114,6 +114,10 @@ public class LauncherUtils {
 				return null;
 			}
 
+			if(content.contains("OpenJDK")) {
+				return "OpenJDK";
+			}
+
 			final int startIndex = content.indexOf('"');
 			final int endIndex = content.lastIndexOf('"');
 
@@ -141,6 +145,10 @@ public class LauncherUtils {
 
 		if(javaVersion == null) {
 			throw new IncorrectJavaException("Отсутствует JAVA. Пожайлуста, установите JAVA (java.com/download/)");
+		}
+
+		if("OpenJDK".equals(javaVersion)) {
+			throw new IncorrectJavaException("У вас установлен OpenJDK. Пожайлуста, установите Oracle JRE (java.com/download/)");
 		}
 
 		if(!(javaVersion.contains("1.8") || javaVersion.contains("1.9"))) {
