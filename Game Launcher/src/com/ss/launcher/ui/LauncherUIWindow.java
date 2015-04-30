@@ -41,7 +41,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 	private static final Point PROP_TITLE_CONTAINER_SIZE = new Point(780, 52);
 
 	private static final Insets PROP_VERSION_LABEL_OFFSET = new Insets(0, 0, 0, 4);
-	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 15, 0, 0);
+	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 20, 0, 0);
 
 	public static final int WINDOW_WIDTH = 800;
 	public static final int WINDOW_HEIGHT = 544;

@@ -12,6 +12,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Worker;
+import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -24,8 +28,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.PopupFeatures;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import rlib.ui.page.impl.AbstractUIPage;
 import rlib.ui.util.FXUtils;
 import rlib.ui.window.UIWindow;
@@ -36,6 +45,7 @@ import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
 import com.ss.launcher.tasks.DownloadClientTask;
 import com.ss.launcher.tasks.UpdateClientTask;
+import com.ss.launcher.ui.browser.WindowBrowser;
 import com.ss.launcher.util.LauncherUtils;
 
 /**
@@ -45,9 +55,18 @@ import com.ss.launcher.util.LauncherUtils;
  */
 public class MainUIPage extends AbstractUIPage {
 
+	public static final String PROP_DEFAULT_HTML = "/com/ss/launcher/resources/welcome.html";
+	public static final String PROP_INDEX_HTML = "http://spaceshift.ru/upd/index.html";
+
 	public static final Point PROP_MAIN_BUTTON_SIZE = new Point(140, 34);
 
 	public static final Insets PROP_LINE_OFFSET = new Insets(10, 0, 10, 0);
+
+	public static final int PROP_WEB_VIEW_HEIGHT = 432;
+	public static final int PROP_WEB_VIEW_WIDTH = 798;
+
+	public static final int PROP_BROWSER_HEIGHT = 768;
+	public static final int PROP_BROWSER_WIDTH = 1300;
 
 	/** рут страницы */
 	private VBox root;
@@ -77,6 +96,7 @@ public class MainUIPage extends AbstractUIPage {
 
 		final Button mainButton = getMainButton();
 		final Label progressBarStatus = getProgressBarStatus();
+		final ProgressBar progressBar = getProgressBar();
 
 		try {
 
@@ -87,6 +107,7 @@ public class MainUIPage extends AbstractUIPage {
 					mainButton.setOnAction(event -> processPlay());
 					mainButton.setDisable(false);
 
+					progressBar.setVisible(false);
 					progressBarStatus.setText("Текущая версия клиента " + getCurrentVersion());
 				});
 			} else {
@@ -96,6 +117,7 @@ public class MainUIPage extends AbstractUIPage {
 					mainButton.setOnAction(event -> processUpdate());
 					mainButton.setDisable(false);
 
+					progressBar.setVisible(false);
 					progressBarStatus.setText("Требуется обновление клиента");
 				});
 			}
@@ -117,11 +139,43 @@ public class MainUIPage extends AbstractUIPage {
 		root.setAlignment(TOP_CENTER);
 
 		webView = new WebView();
-		webView.getEngine().load(getClass().getResource("/com/ss/launcher/resources/welcome.html").toExternalForm());
-		webView.setMaxWidth(656);
-		webView.setMaxHeight(376);
-		webView.setMinWidth(656);
-		webView.setMinHeight(376);
+		webView.setMaxWidth(PROP_WEB_VIEW_WIDTH);
+		webView.setMaxHeight(PROP_WEB_VIEW_HEIGHT);
+		webView.setMinWidth(PROP_WEB_VIEW_WIDTH);
+		webView.setMinHeight(PROP_WEB_VIEW_HEIGHT);
+
+		final WebEngine engine = webView.getEngine();
+		engine.setCreatePopupHandler(new Callback<PopupFeatures, WebEngine>() {
+
+			@Override
+			public WebEngine call(PopupFeatures features) {
+
+				final WindowBrowser windowBrowser = new WindowBrowser();
+				final WebView webView = windowBrowser.getWebView();
+
+				final Stage stage = new Stage(StageStyle.DECORATED);
+				stage.setTitle("Браузер");
+				stage.setScene(new Scene(windowBrowser));
+				stage.setWidth(PROP_BROWSER_WIDTH);
+				stage.setHeight(PROP_BROWSER_HEIGHT);
+				stage.show();
+
+				FXUtils.bindFixedSize(windowBrowser, stage.widthProperty(), stage.heightProperty());
+
+				return webView.getEngine();
+			}
+		});
+
+		final Worker<Void> loadWorker = engine.getLoadWorker();
+		final ReadOnlyObjectProperty<State> stateProperty = loadWorker.stateProperty();
+		stateProperty.addListener((ChangeListener<State>) (observable, oldValue, newValue) -> {
+
+			if(newValue == State.FAILED) {
+				engine.load(getClass().getResource(PROP_DEFAULT_HTML).toExternalForm());
+			}
+		});
+
+		engine.load(PROP_INDEX_HTML);
 
 		final HBox container = new HBox();
 		container.setAlignment(CENTER);
@@ -172,8 +226,8 @@ public class MainUIPage extends AbstractUIPage {
 		FXUtils.addToPane(webView, root);
 		FXUtils.addToPane(container, root);
 
-		VBox.setMargin(container, new Insets(40, 0, 0, 0));
-		VBox.setMargin(webView, new Insets(20, 0, 0, 0));
+		VBox.setMargin(container, new Insets(10, 0, 0, 0));
+		VBox.setMargin(webView, new Insets(0, 0, 0, 0));
 		HBox.setMargin(progressContainer, new Insets(0, 0, 0, 10));
 		HBox.setMargin(questionLabel, new Insets(0, 0, 0, 10));
 		HBox.setMargin(openChooserLabel, new Insets(0, 0, 0, 5));
@@ -260,7 +314,8 @@ public class MainUIPage extends AbstractUIPage {
 			} else {
 				gameFolderContainer.setVisible(false);
 				progressBarStatus.setVisible(true);
-				progressBar.setVisible(true);
+				progressBarStatus.setText("Для продолжения загрузки нажмите кнопку \"Скачать\"...");
+				progressBar.setVisible(false);
 			}
 
 			return;
@@ -289,6 +344,10 @@ public class MainUIPage extends AbstractUIPage {
 			return;
 		}
 
+		progressBarStatus.setVisible(true);
+		progressBarStatus.setText("");
+		progressBar.setVisible(true);
+
 		final Button mainButton = getMainButton();
 		mainButton.setDisable(true);
 
@@ -301,8 +360,10 @@ public class MainUIPage extends AbstractUIPage {
 	 */
 	private void processPlay() {
 
+		final Button mainButton = getMainButton();
+
 		try {
-			LauncherUtils.runClient();
+			LauncherUtils.runClient(() -> mainButton.setDisable(true), () -> mainButton.setDisable(false));
 		} catch(final NotFoundClientException e) {
 
 			final Alert alert = new Alert(AlertType.INFORMATION);
@@ -323,6 +384,10 @@ public class MainUIPage extends AbstractUIPage {
 
 		final Button mainButton = getMainButton();
 		mainButton.setDisable(true);
+
+		progressBarStatus.setVisible(true);
+		progressBarStatus.setText("");
+		progressBar.setVisible(true);
 
 		final ExecutorManager executorManager = ExecutorManager.getInstance();
 		executorManager.async(new UpdateClientTask(this));

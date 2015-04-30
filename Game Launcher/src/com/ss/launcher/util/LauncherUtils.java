@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import rlib.util.FileUtils;
 import rlib.util.StringUtils;
 
@@ -128,7 +129,7 @@ public class LauncherUtils {
 	/**
 	 * Запуск клиента.
 	 */
-	public static void runClient() {
+	public static void runClient(final Runnable startHandler, final Runnable finishHandler) {
 
 		final Path targetFile = getClientFile();
 
@@ -139,40 +140,48 @@ public class LauncherUtils {
 		final String javaVersion = LauncherUtils.getSystemJavaVersion();
 
 		if(javaVersion == null) {
-			throw new IncorrectJavaException("Отсутствует JAVA. Пожайлуста, установите JAVA (java.com/ru/downoads)");
+			throw new IncorrectJavaException("Отсутствует JAVA. Пожайлуста, установите JAVA (java.com/download/)");
 		}
 
 		if(!(javaVersion.contains("1.8") || javaVersion.contains("1.9"))) {
-			throw new IncorrectJavaException("Установленная версия JAVA устарела. Пожалуйста, обновите JAVA (java.com/ru/downoads)");
+			throw new IncorrectJavaException("Установленная версия JAVA устарела. Пожалуйста, обновите JAVA (java.com/download/)");
 		}
 
-		final List<String> commands = new ArrayList<>();
-		commands.add("java");
-		commands.add("-jar");
-		commands.add("-XX:CompileThreshold=200");
-		commands.add("-XX:+AggressiveOpts");
-		commands.add("-XX:+UseParallelGC");
-		commands.add("-XX:+UseTLAB");
-		commands.add("-Xmx1024m");
-		commands.add(targetFile.toString());
+		Platform.runLater(() -> startHandler.run());
 
-		final ProcessBuilder builder = new ProcessBuilder(commands);
-		builder.inheritIO();
+		Thread fork = new Thread(() -> {
 
-		int result = 0;
+			final List<String> commands = new ArrayList<>();
+			commands.add("java");
+			commands.add("-jar");
+			commands.add("-XX:CompileThreshold=200");
+			commands.add("-XX:+AggressiveOpts");
+			commands.add("-XX:+UseParallelGC");
+			commands.add("-XX:+UseTLAB");
+			commands.add("-Xmx1024m");
+			commands.add(targetFile.toString());
 
-		try {
+			final ProcessBuilder builder = new ProcessBuilder(commands);
+			builder.inheritIO();
 
-			final Process process = builder.start();
-			result = process.waitFor();
+			int result = 0;
 
-		} catch(IOException | InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+			try {
 
-		if(result == -2) {
-			runClient();
-		}
+				final Process process = builder.start();
+				result = process.waitFor();
+
+			} catch(IOException | InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+
+			Platform.runLater(() -> finishHandler.run());
+
+			if(result == -2) {
+				runClient(startHandler, finishHandler);
+			}
+		});
+		fork.start();
 	}
 
 	/**
