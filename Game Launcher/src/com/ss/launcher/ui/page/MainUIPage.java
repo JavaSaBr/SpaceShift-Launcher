@@ -14,6 +14,7 @@ import java.nio.file.Path;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
@@ -24,6 +25,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -41,6 +43,7 @@ import rlib.ui.window.UIWindow;
 
 import com.ss.launcher.Config;
 import com.ss.launcher.ExecutorManager;
+import com.ss.launcher.Launcher;
 import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
 import com.ss.launcher.tasks.DownloadClientTask;
@@ -158,6 +161,10 @@ public class MainUIPage extends AbstractUIPage {
 				stage.setScene(new Scene(windowBrowser));
 				stage.setWidth(PROP_BROWSER_WIDTH);
 				stage.setHeight(PROP_BROWSER_HEIGHT);
+
+				final ObservableList<Image> icons = stage.getIcons();
+				icons.add(new Image(Launcher.LINUX_ICON));
+
 				stage.show();
 
 				FXUtils.bindFixedSize(windowBrowser, stage.widthProperty(), stage.heightProperty());
