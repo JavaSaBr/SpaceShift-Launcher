@@ -93,6 +93,7 @@
 			name="SpaceShift Launcher"
 			mainClass="com.ss.launcher.Launcher"
 			toolkit="fx"
+			version="1.1"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />
@@ -105,7 +106,7 @@
 			<manifest>
 				<attribute name="Implementation-Vendor" value="SpaceShift Team"/>
 				<attribute name="Implementation-Title" value="SpaceShift Launcher"/>
-				<attribute name="Implementation-Version" value="1.0"/>
+				<attribute name="Implementation-Version" value="1.1"/>
 			</manifest>
 		</fx:jar>
 		
@@ -121,7 +122,7 @@
 			outfile="SpaceShift Launcher" nativeBundles="all"
 			updatemode="background" verbose="true" >
 	
-			<fx:preferences shortcut="true" menu="true" install="true" description="Launcher for SpaceShift" />
+			<fx:preferences shortcut="true" menu="true" install="false" description="Launcher for SpaceShift" />
 			<fx:info title="SpaceShift Launcher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="Games" />
 			<fx:application refId="fxApplication"/>
 			<fx:resources refid="appRes"/>

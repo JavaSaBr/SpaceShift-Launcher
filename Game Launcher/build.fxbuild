@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ASCII"?>
 <anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0" buildDirectory="${project}/build">
   <deploy verbose="true">
-    <application mainclass="com.ss.launcher.Launcher" version="ergreg"/>
-    <info title="erg" vendor="gerg"/>
+    <application mainclass="com.ss.launcher.Launcher" version="1"/>
+    <info title="SS" vendor="ascascac"/>
   </deploy>
   <signjar/>
 </anttasks:AntTask>
