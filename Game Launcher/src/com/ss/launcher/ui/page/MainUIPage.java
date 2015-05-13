@@ -59,6 +59,8 @@ import com.ss.launcher.util.LauncherUtils;
  */
 public class MainUIPage extends AbstractUIPage {
 
+	public static final String FOLDER_SPACE_SHIFT_CLIENT = "SpaceShiftClient";
+
 	public static final String PROP_DEFAULT_HTML = "/com/ss/launcher/resources/welcome.html";
 	public static final String PROP_INDEX_HTML = "http://spaceshift.ru/upd/index.html";
 
@@ -265,7 +267,9 @@ public class MainUIPage extends AbstractUIPage {
 			return;
 		}
 
-		folder = new File(folder, "SpaceShiftClient");
+		if(!FOLDER_SPACE_SHIFT_CLIENT.equals(folder.getName())) {
+			folder = new File(folder, FOLDER_SPACE_SHIFT_CLIENT);
+		}
 
 		Config.gameFolder = folder.getAbsolutePath();
 		Config.save();

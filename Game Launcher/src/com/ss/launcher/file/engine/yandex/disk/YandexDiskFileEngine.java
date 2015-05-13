@@ -34,6 +34,11 @@ public class YandexDiskFileEngine extends AbstractFileEngine {
 
 			final String jsonString = readStream(entity.getContent());
 			final JSONObject object = new JSONObject(jsonString);
+
+			if(!object.has("href")) {
+				throw new RuntimeException("Проблема с получением данных, установите пожалуйста более новый лаунчер.");
+			}
+
 			final String href = object.getString("href");
 
 			response = httpClient.execute(new HttpGet(href));
