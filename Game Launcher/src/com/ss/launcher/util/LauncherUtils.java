@@ -188,6 +188,12 @@ public class LauncherUtils {
 			commands.add("-XX:+UseParallelGC");
 			commands.add("-XX:+UseTLAB");
 			commands.add("-Xmx3072m");
+
+			if(!StringUtils.isEmpty(Config.httpProxyHost)) {
+				commands.add("-Dhttp.proxyHost=" + Config.httpProxyHost);
+				commands.add("-Dhttp.proxyHost=" + Config.httpProxyPort);
+			}
+
 			commands.add(targetFile.toString());
 
 			final ProcessBuilder builder = new ProcessBuilder(commands);
