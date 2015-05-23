@@ -1,11 +1,25 @@
 package com.ss.launcher.ui.page;
 
+import static com.ss.launcher.Messages.ALERT_ERROR_TITLE;
+import static com.ss.launcher.Messages.ALERT_INFO_HEADER_TEXT_NOT_FOUND_CLIENT;
+import static com.ss.launcher.Messages.ALERT_INFO_TITLE;
+import static com.ss.launcher.Messages.DIRECTORY_CHOOSER_TITLE;
+import static com.ss.launcher.Messages.MAIN_PAGE_MAIN_BUTTON_CHECKING;
+import static com.ss.launcher.Messages.MAIN_PAGE_MAIN_BUTTON_DOWNLOAD;
+import static com.ss.launcher.Messages.MAIN_PAGE_MAIN_BUTTON_PLAY;
+import static com.ss.launcher.Messages.MAIN_PAGE_MAIN_BUTTON_UPDATE;
+import static com.ss.launcher.Messages.MAIN_PAGE_OPEN_CHOOSER_LABEL;
+import static com.ss.launcher.Messages.MAIN_PAGE_QUESTION_LABEL;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_CURRENT_VERSION;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_NEED_UPDATE;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_PRESS_DOWNLOAD;
 import static com.ss.launcher.util.LauncherUtils.getCurrentVersion;
 import static com.ss.launcher.util.LauncherUtils.isNeedUpdate;
 import static javafx.application.Platform.runLater;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.TOP_CENTER;
+import static javafx.scene.Cursor.HAND;
 
 import java.awt.Point;
 import java.io.File;
@@ -18,7 +32,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -50,6 +63,7 @@ import com.ss.launcher.exception.IncorrectJavaException;
 import com.ss.launcher.exception.NotFoundClientException;
 import com.ss.launcher.tasks.DownloadClientTask;
 import com.ss.launcher.tasks.UpdateClientTask;
+import com.ss.launcher.ui.dialog.SettingsDialog;
 import com.ss.launcher.util.LauncherUtils;
 
 /**
@@ -69,6 +83,7 @@ public class MainUIPage extends AbstractUIPage {
 	public static final String EVENT_TYPE_MOUSEOUT = "mouseclick";
 
 	public static final Point PROP_MAIN_BUTTON_SIZE = new Point(140, 34);
+	public static final Point PROP_SETTING_BUTTON_SIZE = new Point(32, 32);
 
 	public static final Insets PROP_LINE_OFFSET = new Insets(10, 0, 10, 0);
 
@@ -110,6 +125,8 @@ public class MainUIPage extends AbstractUIPage {
 
 	/** главная кнопка */
 	private Button mainButton;
+	/** кнопка настроек */
+	private Button settingsButton;
 
 	private WebView webView;
 
@@ -127,22 +144,22 @@ public class MainUIPage extends AbstractUIPage {
 			if(!isNeedUpdate()) {
 				runLater(() -> {
 
-					mainButton.setText("Играть");
+					mainButton.setText(MAIN_PAGE_MAIN_BUTTON_PLAY);
 					mainButton.setOnAction(event -> processPlay());
 					mainButton.setDisable(false);
 
 					progressBar.setVisible(false);
-					progressBarStatus.setText("Текущая версия клиента " + getCurrentVersion());
+					progressBarStatus.setText(MAIN_PAGE_STATUS_CURRENT_VERSION + " " + getCurrentVersion());
 				});
 			} else {
 				runLater(() -> {
 
-					mainButton.setText("Обновить");
+					mainButton.setText(MAIN_PAGE_MAIN_BUTTON_UPDATE);
 					mainButton.setOnAction(event -> processUpdate());
 					mainButton.setDisable(false);
 
 					progressBar.setVisible(false);
-					progressBarStatus.setText("Требуется обновление клиента");
+					progressBarStatus.setText(MAIN_PAGE_STATUS_NEED_UPDATE);
 				});
 			}
 
@@ -150,7 +167,7 @@ public class MainUIPage extends AbstractUIPage {
 			runLater(() -> {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setHeaderText(e.getLocalizedMessage());
-				alert.setTitle("Ошибка");
+				alert.setTitle(ALERT_ERROR_TITLE);
 				alert.showAndWait();
 			});
 		}
@@ -196,7 +213,7 @@ public class MainUIPage extends AbstractUIPage {
 		container.setAlignment(CENTER);
 
 		mainButton = new Button();
-		mainButton.setCursor(Cursor.HAND);
+		mainButton.setCursor(HAND);
 
 		progressContainer = new StackPane();
 
@@ -210,12 +227,16 @@ public class MainUIPage extends AbstractUIPage {
 		gameFolderContainer.setVisible(false);
 
 		questionLabel = new Label();
-		questionLabel.setText("Игра уже установлена?");
+		questionLabel.setText(MAIN_PAGE_QUESTION_LABEL);
 
 		openChooserLabel = new Label();
-		openChooserLabel.setText("Укажите путь установки игры.");
+		openChooserLabel.setText(MAIN_PAGE_OPEN_CHOOSER_LABEL);
 		openChooserLabel.setOnMouseClicked(event -> chooseGameFolder());
-		openChooserLabel.setCursor(Cursor.HAND);
+		openChooserLabel.setCursor(HAND);
+
+		settingsButton = new Button();
+		settingsButton.setCursor(HAND);
+		settingsButton.setOnAction(event -> openSettings());
 
 		FXUtils.bindFixedHeight(questionLabel, progressContainer.heightProperty());
 		FXUtils.bindFixedHeight(openChooserLabel, progressContainer.heightProperty());
@@ -224,11 +245,14 @@ public class MainUIPage extends AbstractUIPage {
 		FXUtils.addClassTo(questionLabel, "question-text-white");
 		FXUtils.addClassTo(openChooserLabel, "question-text-blue");
 		FXUtils.addClassTo(mainButton, "main-button");
+		FXUtils.addClassTo(settingsButton, "main-button");
+		FXUtils.addClassTo(settingsButton, "settings-button");
 		FXUtils.addClassTo(mainButton, "text-arial-14-white");
 		FXUtils.addClassTo(progressBar, "progress-update-bar");
 		FXUtils.addClassTo(progressBarStatus, "progress-status-text");
 
 		FXUtils.setFixedSize(mainButton, PROP_MAIN_BUTTON_SIZE);
+		FXUtils.setFixedSize(settingsButton, PROP_SETTING_BUTTON_SIZE);
 		FXUtils.setFixedSize(progressBar, new Point(564, 20));
 
 		FXUtils.addToPane(questionLabel, gameFolderContainer);
@@ -238,6 +262,7 @@ public class MainUIPage extends AbstractUIPage {
 		FXUtils.addToPane(progressBar, progressContainer);
 		FXUtils.addToPane(progressBarStatus, progressContainer);
 		FXUtils.addToPane(progressContainer, container);
+		FXUtils.addToPane(settingsButton, container);
 		FXUtils.addToPane(webView, root);
 		FXUtils.addToPane(container, root);
 
@@ -246,8 +271,17 @@ public class MainUIPage extends AbstractUIPage {
 		HBox.setMargin(progressContainer, new Insets(0, 0, 0, 10));
 		HBox.setMargin(questionLabel, new Insets(0, 0, 0, 10));
 		HBox.setMargin(openChooserLabel, new Insets(0, 0, 0, 5));
+		HBox.setMargin(settingsButton, new Insets(0, 0, 0, 6));
 
 		return root;
+	}
+
+	/**
+	 * Открытие окна настроек.
+	 */
+	private void openSettings() {
+		SettingsDialog dialog = new SettingsDialog();
+		dialog.show(this);
 	}
 
 	/**
@@ -258,7 +292,7 @@ public class MainUIPage extends AbstractUIPage {
 		final Scene scene = root.getScene();
 
 		final DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle("Папка для размещения игры");
+		chooser.setTitle(DIRECTORY_CHOOSER_TITLE);
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
 		File folder = chooser.showDialog(scene.getWindow());
@@ -305,7 +339,7 @@ public class MainUIPage extends AbstractUIPage {
 		window.setRezisable(true);
 
 		final Button mainButton = getMainButton();
-		mainButton.setText("Проверка...");
+		mainButton.setText(MAIN_PAGE_MAIN_BUTTON_CHECKING);
 		mainButton.setDisable(true);
 
 		updateMainButton();
@@ -320,7 +354,8 @@ public class MainUIPage extends AbstractUIPage {
 		final Path clientFile = LauncherUtils.getClientFile();
 
 		if(!Files.exists(clientFile)) {
-			mainButton.setText("Скачать");
+
+			mainButton.setText(MAIN_PAGE_MAIN_BUTTON_DOWNLOAD);
 			mainButton.setOnAction(event -> processDownload());
 			mainButton.setDisable(false);
 
@@ -328,11 +363,13 @@ public class MainUIPage extends AbstractUIPage {
 				gameFolderContainer.setVisible(true);
 				progressBarStatus.setVisible(false);
 				progressBar.setVisible(false);
+				settingsButton.setDisable(true);
 			} else {
 				gameFolderContainer.setVisible(false);
 				progressBarStatus.setVisible(true);
-				progressBarStatus.setText("Для продолжения загрузки нажмите кнопку \"Скачать\"...");
+				progressBarStatus.setText(MAIN_PAGE_STATUS_PRESS_DOWNLOAD);
 				progressBar.setVisible(false);
+				settingsButton.setDisable(false);
 			}
 
 			return;
@@ -341,6 +378,7 @@ public class MainUIPage extends AbstractUIPage {
 		gameFolderContainer.setVisible(false);
 		progressBarStatus.setVisible(true);
 		progressBar.setVisible(true);
+		settingsButton.setDisable(false);
 
 		final ExecutorManager executorManager = ExecutorManager.getInstance();
 		executorManager.async(() -> {
@@ -368,8 +406,18 @@ public class MainUIPage extends AbstractUIPage {
 		final Button mainButton = getMainButton();
 		mainButton.setDisable(true);
 
+		final Button settingsButton = getSettingsButton();
+		settingsButton.setDisable(true);
+
 		final ExecutorManager executorManager = ExecutorManager.getInstance();
 		executorManager.async(new DownloadClientTask(this));
+	}
+
+	/**
+	 * @return кнопка настроек.
+	 */
+	private Button getSettingsButton() {
+		return settingsButton;
 	}
 
 	/**
@@ -384,15 +432,15 @@ public class MainUIPage extends AbstractUIPage {
 		} catch(final NotFoundClientException e) {
 
 			final Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setHeaderText("Не найден клиент, перезапустите лаунчер.");
-			alert.setTitle("Информация");
+			alert.setHeaderText(ALERT_INFO_HEADER_TEXT_NOT_FOUND_CLIENT);
+			alert.setTitle(ALERT_INFO_TITLE);
 			alert.showAndWait();
 
 		} catch(final IncorrectJavaException e) {
 
 			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setHeaderText(e.getMessage());
-			alert.setTitle("Ошибка");
+			alert.setHeaderText(e.getLocalizedMessage());
+			alert.setTitle(ALERT_ERROR_TITLE);
 			alert.showAndWait();
 		}
 	}
@@ -401,6 +449,9 @@ public class MainUIPage extends AbstractUIPage {
 
 		final Button mainButton = getMainButton();
 		mainButton.setDisable(true);
+
+		final Button settingsButton = getSettingsButton();
+		settingsButton.setDisable(true);
 
 		progressBarStatus.setVisible(true);
 		progressBarStatus.setText("");

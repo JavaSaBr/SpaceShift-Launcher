@@ -1,8 +1,11 @@
 package com.ss.launcher.ui;
 
+import static com.ss.launcher.Messages.WINDWOW_TITLE;
+import static com.ss.launcher.Messages.WINDWOW_TITLE_VERSION;
 import static javafx.geometry.Pos.BOTTOM_LEFT;
 import static javafx.geometry.Pos.CENTER_LEFT;
 import static javafx.geometry.Pos.CENTER_RIGHT;
+import static javafx.scene.Cursor.HAND;
 import static javafx.scene.paint.Color.TRANSPARENT;
 
 import java.awt.Point;
@@ -32,16 +35,16 @@ import rlib.util.array.Array;
  */
 public class LauncherUIWindow extends UndecoratedUIWindow {
 
-	private static final String CSS_CLASS_TITLE_VERSION_TEXT = "title-version-text";
-	private static final String CSS_CLASS_WINDOW_BACKGROUND = "window-background";
-	private static final String CSS_CLASS_TITLE_TEXT = "title-text";
+	public static final String CSS_CLASS_TITLE_VERSION_TEXT = "title-version-text";
+	public static final String CSS_CLASS_WINDOW_BACKGROUND = "window-background";
+	public static final String CSS_CLASS_TITLE_TEXT = "title-text";
 
-	private static final String CSS_ID_CLOSE_BUTTON = "CloseButton";
+	public static final String CSS_ID_CLOSE_BUTTON = "CloseButton";
 
-	private static final Point PROP_TITLE_CONTAINER_SIZE = new Point(780, 52);
+	public static final Point PROP_TITLE_CONTAINER_SIZE = new Point(780, 52);
 
-	private static final Insets PROP_VERSION_LABEL_OFFSET = new Insets(0, 0, 0, 4);
-	private static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 20, 0, 0);
+	public static final Insets PROP_VERSION_LABEL_OFFSET = new Insets(0, 0, 0, 4);
+	public static final Insets PROP_CLOSE_BUTTON_OFFSET = new Insets(0, 20, 0, 0);
 
 	public static final int WINDOW_WIDTH = 800;
 	public static final int WINDOW_HEIGHT = 544;
@@ -86,6 +89,7 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		final Button button = new Button();
 		button.setId(CSS_ID_CLOSE_BUTTON);
 		button.setOnAction(event -> close());
+		button.setCursor(HAND);
 
 		FXUtils.setFixedSize(button, new Point(11, 11));
 
@@ -106,11 +110,11 @@ public class LauncherUIWindow extends UndecoratedUIWindow {
 		HBox titleContainer = new HBox();
 		titleContainer.setAlignment(CENTER_LEFT);
 
-		Label titleLabel = new Label("SPACESHIFT");
+		Label titleLabel = new Label(WINDWOW_TITLE);
 		titleLabel.setTextAlignment(TextAlignment.LEFT);
 		titleLabel.setAlignment(BOTTOM_LEFT);
 
-		Label versionLabel = new Label("ALPHA");
+		Label versionLabel = new Label(WINDWOW_TITLE_VERSION);
 		versionLabel.setTextAlignment(TextAlignment.LEFT);
 		versionLabel.setAlignment(BOTTOM_LEFT);
 

@@ -7,6 +7,26 @@
 	-fx-background-color: transparent;
 }
 
+.dialog-background {
+    -fx-background-position: center;
+	-fx-background-color: #303030;
+	-fx-border-color: black;
+	-fx-border-width: 1px;
+}
+
+.dialog-header-background {
+    -fx-background-position: center;
+	-fx-background-color: #212121;
+}
+
+.title-dialog-text {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-font-weight: bold;
+	-fx-text-fill: white;
+	-fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1); 
+}
+
 .title-text {
 	-fx-font-family: "Arial";
 	-fx-font-size: 18px;
@@ -73,6 +93,16 @@
 	-fx-background-color: -fx-body-color;
 }
 
+.settings-button {
+	-fx-background-image: url('/com/ss/launcher/resources/images/btn_settings.png');
+    -fx-background-repeat: no-repeat;
+}
+
+.settings-button-open {
+	-fx-background-image: url('/com/ss/launcher/resources/images/btn_settings-open.png');
+    -fx-background-repeat: no-repeat;
+}
+
 .progress-update-bar {
     -fx-background-color: #323232;
     -fx-indeterminate-bar-length: 150;
@@ -112,4 +142,34 @@
 	-fx-font-family: "Arial";
 	-fx-font-size: 14px;
 	-fx-text-fill: rgb(19, 175, 240);
+}
+
+.setting-label {
+	-fx-font-family: "Arial";
+	-fx-font-size: 14px;
+	-fx-text-fill: white;
+}
+
+.setting-text-field {
+    -fx-body-color: transparent;
+    -fx-highlight-fill: derive(-fx-control-inner-background,-20%);
+    -fx-highlight-text-fill: -fx-text-inner-color;
+    -fx-prompt-text-fill: white;
+    -fx-cursor: text;
+    -fx-background-color: -fx-body-color;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+	-fx-border-color: #787777;
+	-fx-border-radius: 0;
+	-fx-border-insets: 0;
+    -fx-padding: 0 0.1 0 0.1em; /* 4 8 4 8 */
+    -fx-text-fill: white;
+	-fx-effect: null;
+}
+
+.setting-text-field:focused {
+    -fx-highlight-fill: -fx-accent;
+    -fx-highlight-text-fill: white;
+    -fx-prompt-text-fill: transparent;
+	-fx-border-color: -fx-focus-color;
 }

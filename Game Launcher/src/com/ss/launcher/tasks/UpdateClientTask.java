@@ -1,5 +1,8 @@
 package com.ss.launcher.tasks;
 
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_DOWNLOAD;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_UPDATE_CLIENT;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_UPDATE_SUCCESSFUL;
 import static javafx.application.Platform.runLater;
 
 import java.io.IOException;
@@ -11,8 +14,6 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import rlib.util.FileUtils;
@@ -56,9 +57,9 @@ public class UpdateClientTask implements SafeTask {
 		try {
 
 			final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
-			final String lastVersion = fileEngine.getContent(Config.FILE_LAST_VERSION_URL);
+			final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
 
-			runLater(() -> progressBarStatus.setText("Обновление клиента до версии " + lastVersion));
+			runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_UPDATE_CLIENT + " " + lastVersion));
 			runLater(() -> progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS));
 
 			final Path gameFolder = LauncherUtils.getGameFolder();
@@ -84,7 +85,7 @@ public class UpdateClientTask implements SafeTask {
 
 					final ZipEntry toPrint = entry;
 
-					runLater(() -> progressBarStatus.setText("Загрузка: " + toPrint.getName()));
+					runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName()));
 
 					final Path parent = entryPath.getParent();
 
@@ -118,7 +119,7 @@ public class UpdateClientTask implements SafeTask {
 							final String printWrited = String.format("%.2f", (writed / 1024D / 1024D));
 
 							runLater(() -> progressBar.setProgress(progress));
-							runLater(() -> progressBarStatus.setText("Загрузка: " + toPrint.getName() + " (" + printWrited + "Mb / " + printSize + "Mb)"));
+							runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName() + " (" + printWrited + "Mb / " + printSize + "Mb)"));
 
 							lastUpdate = writed;
 						}
@@ -133,27 +134,13 @@ public class UpdateClientTask implements SafeTask {
 
 			LauncherUtils.updateVersion(lastVersion);
 
-			runLater(() -> progressBarStatus.setText("Клиент был успешно обновлен до версии " + lastVersion));
+			runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_UPDATE_SUCCESSFUL + " " + lastVersion));
 
 		} catch(Exception e) {
-			handleException(e);
+			LauncherUtils.handleException(e);
 		} finally {
 			runLater(() -> progressBar.setProgress(0));
 			runLater(() -> page.updateMainButton());
 		}
-	}
-
-	/**
-	 * Обработка ошибки.
-	 */
-	protected void handleException(Exception e) {
-		e.printStackTrace();
-
-		runLater(() -> {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Ошибка");
-			alert.setHeaderText(e.getMessage());
-			alert.showAndWait();
-		});
 	}
 }

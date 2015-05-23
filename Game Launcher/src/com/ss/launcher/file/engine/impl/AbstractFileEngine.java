@@ -1,9 +1,7 @@
 package com.ss.launcher.file.engine.impl;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Scanner;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -59,23 +57,5 @@ public abstract class AbstractFileEngine implements FileEngine {
 		}
 
 		return builder.toString();
-	}
-
-	protected String readStream(InputStream in) {
-
-		String result = null;
-
-		try(Scanner scanner = new Scanner(in)) {
-
-			final StringBuilder builder = new StringBuilder();
-
-			while(scanner.hasNext()) {
-				builder.append(scanner.nextLine());
-			}
-
-			result = builder.toString();
-		}
-
-		return result;
 	}
 }

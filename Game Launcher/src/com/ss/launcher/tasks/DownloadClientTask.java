@@ -1,5 +1,8 @@
 package com.ss.launcher.tasks;
 
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_DOWNLOAD;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_DOWNLOAD_SUCCESSFUL;
+import static com.ss.launcher.Messages.MAIN_PAGE_STATUS_PREPARE_DOWNLOAD;
 import static javafx.application.Platform.runLater;
 
 import java.io.IOException;
@@ -11,8 +14,6 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import rlib.util.FileUtils;
@@ -56,9 +57,9 @@ public class DownloadClientTask implements SafeTask {
 		try {
 
 			final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
-			final String lastVersion = fileEngine.getContent(Config.FILE_LAST_VERSION_URL);
+			final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
 
-			runLater(() -> progressBarStatus.setText("Подготовка к загрузке клиента версии " + lastVersion));
+			runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_PREPARE_DOWNLOAD + " " + lastVersion));
 			runLater(() -> progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS));
 
 			final Path gameFolder = LauncherUtils.getGameFolder();
@@ -84,7 +85,7 @@ public class DownloadClientTask implements SafeTask {
 
 					final ZipEntry toPrint = entry;
 
-					runLater(() -> progressBarStatus.setText("Загрузка: " + toPrint.getName()));
+					runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName()));
 
 					final Path parent = entryPath.getParent();
 
@@ -118,7 +119,7 @@ public class DownloadClientTask implements SafeTask {
 							final String printWrited = String.format("%.2f", (writed / 1024D / 1024D));
 
 							runLater(() -> progressBar.setProgress(progress));
-							runLater(() -> progressBarStatus.setText("Загрузка: " + toPrint.getName() + " (" + printWrited + "Mb / " + printSize + "Mb)"));
+							runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName() + " (" + printWrited + "Mb / " + printSize + "Mb)"));
 
 							lastUpdate = writed;
 						}
@@ -133,25 +134,13 @@ public class DownloadClientTask implements SafeTask {
 
 			LauncherUtils.updateVersion(lastVersion);
 
-			runLater(() -> progressBarStatus.setText("Клиент был успешно загружен."));
+			runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD_SUCCESSFUL));
 
 		} catch(Exception e) {
-			handleException(e);
+			LauncherUtils.handleException(e);
 		} finally {
 			runLater(() -> progressBar.setProgress(0));
 			runLater(() -> page.updateMainButton());
 		}
-	}
-
-	/**
-	 * Обработка ошибки.
-	 */
-	protected void handleException(Exception e) {
-		runLater(() -> {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Ошибка");
-			alert.setHeaderText(e.getMessage());
-			alert.showAndWait();
-		});
 	}
 }

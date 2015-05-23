@@ -93,7 +93,7 @@
 			name="SpaceShift Launcher"
 			mainClass="com.ss.launcher.Launcher"
 			toolkit="fx"
-			version="1.2"
+			version="1.3"
 		/>
 	
 		<mkdir dir="build/classes/META-INF" />
@@ -104,9 +104,9 @@
 			<fx:resources refid="appRes"/>
 			
 			<manifest>
-				<attribute name="Implementation-Vendor" value="SpaceShift Team"/>
+				<attribute name="Implementation-Vendor" value="spaceshift.ru"/>
 				<attribute name="Implementation-Title" value="SpaceShift Launcher"/>
-				<attribute name="Implementation-Version" value="1.2"/>
+				<attribute name="Implementation-Version" value="1.3"/>
 			</manifest>
 		</fx:jar>
 		
@@ -121,11 +121,11 @@
 			outdir="${basedir}/deploy"
 			outfile="SpaceShift Launcher" nativeBundles="all"
 			updatemode="background" verbose="true" >
-	
-			<fx:preferences shortcut="true" menu="true" install="false" description="Launcher for SpaceShift" />
-			<fx:info title="SpaceShift Launcher" vendor="SpaceShift Team" description="Launcher for SpaceShift" category="Games" />
-			<fx:application refId="fxApplication"/>
-			<fx:resources refid="appRes"/>
+
+			<preferences shortcut="true" menu="true" install="false" />
+			<info category="Games;Game" copyright="spaceshift.ru" description="Launcher for SpaceShift" email="javasabr@gmail.com" license="Freeware" title="SpaceShift Launcher" vendor="spaceshift.ru"/>
+			<application refId="fxApplication"/>
+			<resources refid="appRes"/>
 		</fx:deploy>
 		
 		

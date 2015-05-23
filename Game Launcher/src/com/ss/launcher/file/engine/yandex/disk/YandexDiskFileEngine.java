@@ -1,7 +1,11 @@
 package com.ss.launcher.file.engine.yandex.disk;
 
+import static com.ss.launcher.Messages.RUNTIME_EXCEPTION_MESSAGE_CANT_DOWNLOAD;
+import static com.ss.launcher.util.LauncherUtils.readStream;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,7 +40,7 @@ public class YandexDiskFileEngine extends AbstractFileEngine {
 			final JSONObject object = new JSONObject(jsonString);
 
 			if(!object.has("href")) {
-				throw new RuntimeException("Проблема с получением данных, установите пожалуйста более новый лаунчер.");
+				throw new RuntimeException(RUNTIME_EXCEPTION_MESSAGE_CANT_DOWNLOAD);
 			}
 
 			final String href = object.getString("href");
@@ -46,6 +50,8 @@ public class YandexDiskFileEngine extends AbstractFileEngine {
 
 			return entity.getContent();
 
+		} catch(final UnknownHostException e) {
+			throw new RuntimeException(e);
 		} catch(final IOException e) {
 			throw new RuntimeException(e);
 		}
