@@ -5,14 +5,14 @@ import java.io.InputStream;
 /**
  * Интерфейс для реализации движка по вытягиванию данных необходимых для
  * проверки и обновления клиента.
- * 
+ *
  * @author Ronn
  */
 public interface FileEngine {
 
-	public InputStream getInputStream(String url);
+    public String getContent(String url);
 
-	public String getContent(String url);
+    public InputStream getInputStream(String url);
 
-	public String getName();
+    public String getName();
 }

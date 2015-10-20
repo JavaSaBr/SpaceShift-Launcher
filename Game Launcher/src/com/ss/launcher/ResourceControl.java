@@ -15,49 +15,48 @@ import java.util.ResourceBundle.Control;
  */
 public class ResourceControl extends Control {
 
-	private static final ResourceControl INSTANCE = new ResourceControl();
+    private static final ResourceControl INSTANCE = new ResourceControl();
 
-	public static ResourceControl getInstance() {
-		return INSTANCE;
-	}
+    public static ResourceControl getInstance() {
+        return INSTANCE;
+    }
 
-	@Override
-	public ResourceBundle newBundle(final String baseName, final Locale locale, final String format, final ClassLoader loader, final boolean reload) throws IllegalAccessException,
-			InstantiationException, IOException {
+    @Override
+    public ResourceBundle newBundle(final String baseName, final Locale locale, final String format, final ClassLoader loader, final boolean reload) throws IllegalAccessException, InstantiationException, IOException {
 
-		// The below is a copy of the default implementation.
-		final String bundleName = toBundleName(baseName, locale);
-		final String resourceName = toResourceName(bundleName, "properties");
+        // The below is a copy of the default implementation.
+        final String bundleName = toBundleName(baseName, locale);
+        final String resourceName = toResourceName(bundleName, "properties");
 
-		ResourceBundle bundle = null;
-		InputStream stream = null;
+        ResourceBundle bundle = null;
+        InputStream stream = null;
 
-		if(reload) {
+        if (reload) {
 
-			final URL url = loader.getResource(resourceName);
+            final URL url = loader.getResource(resourceName);
 
-			if(url != null) {
-				final URLConnection connection = url.openConnection();
-				if(connection != null) {
-					connection.setUseCaches(false);
-					stream = connection.getInputStream();
-				}
-			}
+            if (url != null) {
+                final URLConnection connection = url.openConnection();
+                if (connection != null) {
+                    connection.setUseCaches(false);
+                    stream = connection.getInputStream();
+                }
+            }
 
-		} else {
-			stream = loader.getResourceAsStream(resourceName);
-		}
+        } else {
+            stream = loader.getResourceAsStream(resourceName);
+        }
 
-		if(stream != null) {
-			try {
-				// Only this line is changed to make it to read properties files
-				// as UTF-8.
-				bundle = new PropertyResourceBundle(new InputStreamReader(stream, "UTF-8"));
-			} finally {
-				stream.close();
-			}
-		}
+        if (stream != null) {
+            try {
+                // Only this line is changed to make it to read properties files
+                // as UTF-8.
+                bundle = new PropertyResourceBundle(new InputStreamReader(stream, "UTF-8"));
+            } finally {
+                stream.close();
+            }
+        }
 
-		return bundle;
-	}
+        return bundle;
+    }
 }

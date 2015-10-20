@@ -1,69 +1,68 @@
 
 .window-background {
-	-fx-background-image: url('/com/ss/launcher/resources/images/background.png');
-	-fx-background-size: 800, 544;
+    -fx-background-image: url('/com/ss/launcher/resources/images/background.png');
+    -fx-background-size: 800, 544;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
-	-fx-background-color: transparent;
+    -fx-background-color: transparent;
 }
 
 .dialog-background {
     -fx-background-position: center;
-	-fx-background-color: #303030;
-	-fx-border-color: black;
-	-fx-border-width: 1px;
+    -fx-background-color: #303030;
+    -fx-border-color: black;
+    -fx-border-width: 1px;
 }
 
 .dialog-header-background {
     -fx-background-position: center;
-	-fx-background-color: #212121;
+    -fx-background-color: #212121;
 }
 
 .title-dialog-text {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-font-weight: bold;
-	-fx-text-fill: white;
-	-fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1); 
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1);
 }
 
 .title-text {
-	-fx-font-family: "Arial";
-	-fx-font-size: 18px;
-	-fx-font-weight: bold;
-	-fx-text-fill: linear-gradient(to right,
-		rgba(255, 255, 255, 1) 0%,
-		rgba(255, 255, 255, 1) 53%,
-		rgba(157, 157, 157, 1) 54%
-		rgba(157, 157, 157, 1) 100%
-	);
-	-fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1); 
+    -fx-font-family: "Arial";
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 53%,
+    rgba(157, 157, 157, 1) 54% rgba(157, 157, 157, 1) 100%
+    );
+    -fx-effect: dropshadow(one-pass-box, black, 2, 1, 1, 1);
 }
 
 .title-version-text {
-	-fx-font-family: "Arial";
-	-fx-font-size: 9px;
-	-fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 9px;
+    -fx-text-fill: white;
 }
 
 #CloseButton {
-	-fx-background-image: url('/com/ss/launcher/resources/images/btn_close.png');
-	-fx-background-color: transparent;
+    -fx-background-image: url('/com/ss/launcher/resources/images/btn_close.png');
+    -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
     -fx-border-color: transparent;
     -fx-border-width: 0px;
-	-fx-effect: null;
+    -fx-effect: null;
 }
 
 #CloseButton:hover {
-	-fx-background-image: url('/com/ss/launcher/resources/images/btn_close_hower.png');
+    -fx-background-image: url('/com/ss/launcher/resources/images/btn_close_hower.png');
 }
 
 .text-arial-14-white {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
 }
 
 .main-button {
@@ -71,35 +70,35 @@
     -fx-background-color: -fx-body-color;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-	-fx-border-color: transparent;
-	-fx-border-radius: 0;
-	-fx-border-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
     -fx-padding: 0, 0, 0, 0;
     -fx-text-fill: white;
     -fx-alignment: CENTER;
     -fx-content-display: LEFT;
-	-fx-effect: null;
+    -fx-effect: null;
 }
 
 .main-button:hover {
     -fx-body-color: rgb(88, 175, 240);
 }
 
-.main-button:armed  {
+.main-button:armed {
     -fx-body-color: rgb(0, 175, 240);
 }
 
 .main-button:focused {
-	-fx-background-color: -fx-body-color;
+    -fx-background-color: -fx-body-color;
 }
 
 .settings-button {
-	-fx-background-image: url('/com/ss/launcher/resources/images/btn_settings.png');
+    -fx-background-image: url('/com/ss/launcher/resources/images/btn_settings.png');
     -fx-background-repeat: no-repeat;
 }
 
 .settings-button-open {
-	-fx-background-image: url('/com/ss/launcher/resources/images/btn_settings-open.png');
+    -fx-background-image: url('/com/ss/launcher/resources/images/btn_settings-open.png');
     -fx-background-repeat: no-repeat;
 }
 
@@ -109,17 +108,20 @@
     -fx-indeterminate-bar-escape: true;
     -fx-indeterminate-bar-flip: true;
     -fx-indeterminate-bar-animation-time: 2;
-	-fx-accent: rgb(19, 175, 240);
+    -fx-accent: rgb(19, 175, 240);
 }
+
 .progress-update-bar > .bar {
-    -fx-background-color: linear-gradient(to bottom, derive(-fx-accent, -7%), derive(-fx-accent, 0%), derive(-fx-accent, -3%), derive(-fx-accent, -9%) );
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-accent, -7%), derive(-fx-accent, 0%), derive(-fx-accent, -3%), derive(-fx-accent, -9%));
     -fx-background-insets: 0 0 0 0;
     -fx-background-radius: 0;
     -fx-padding: 0.75em;
 }
+
 .progress-update-bar:indeterminate > .bar {
     -fx-background-color: linear-gradient(to left, transparent, -fx-accent);
 }
+
 .progress-update-bar > .track {
     -fx-background-color: #323232;
     -fx-background-insets: 0;
@@ -127,49 +129,49 @@
 }
 
 .progress-status-text {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
 }
 
 .question-text-white {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
 }
 
 .question-text-blue {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-text-fill: rgb(19, 175, 240);
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-text-fill: rgb(19, 175, 240);
 }
 
 .setting-label {
-	-fx-font-family: "Arial";
-	-fx-font-size: 14px;
-	-fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
 }
 
 .setting-text-field {
     -fx-body-color: transparent;
-    -fx-highlight-fill: derive(-fx-control-inner-background,-20%);
+    -fx-highlight-fill: derive(-fx-control-inner-background, -20%);
     -fx-highlight-text-fill: -fx-text-inner-color;
     -fx-prompt-text-fill: white;
     -fx-cursor: text;
     -fx-background-color: -fx-body-color;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
-	-fx-border-color: #787777;
-	-fx-border-radius: 0;
-	-fx-border-insets: 0;
+    -fx-border-color: #787777;
+    -fx-border-radius: 0;
+    -fx-border-insets: 0;
     -fx-padding: 0 0.1 0 0.1em; /* 4 8 4 8 */
     -fx-text-fill: white;
-	-fx-effect: null;
+    -fx-effect: null;
 }
 
 .setting-text-field:focused {
     -fx-highlight-fill: -fx-accent;
     -fx-highlight-text-fill: white;
     -fx-prompt-text-fill: transparent;
-	-fx-border-color: -fx-focus-color;
+    -fx-border-color: -fx-focus-color;
 }

@@ -5,9 +5,9 @@ package com.ss.launcher.exception;
  */
 public class IncorrectJavaException extends RuntimeException {
 
-	private static final long serialVersionUID = 2950932604404159164L;
+    private static final long serialVersionUID = 2950932604404159164L;
 
-	public IncorrectJavaException(String message) {
-		super(message);
-	}
+    public IncorrectJavaException(String message) {
+        super(message);
+    }
 }

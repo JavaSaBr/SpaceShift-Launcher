@@ -1,10 +1,9 @@
 package com.ss.launcher;
 
-import static com.ss.launcher.Messages.ALERT_INFO_HEADER_TEXT_NEED_UPDATE_LAUNCHER;
-import static javafx.application.Platform.runLater;
-
-import java.util.Optional;
-
+import com.ss.launcher.file.engine.FileEngine;
+import com.ss.launcher.file.engine.FileEngineManager;
+import com.ss.launcher.ui.LauncherUIWindow;
+import com.ss.launcher.ui.page.MainUIPage;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.collections.ObservableList;
@@ -13,103 +12,117 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import rlib.logging.LoggerLevel;
 import rlib.ui.page.UIPage;
 import rlib.ui.window.UIWindow;
 import rlib.util.StringUtils;
 import rlib.util.array.Array;
 import rlib.util.array.ArrayFactory;
 
-import com.ss.launcher.file.engine.FileEngine;
-import com.ss.launcher.file.engine.FileEngineManager;
-import com.ss.launcher.ui.LauncherUIWindow;
-import com.ss.launcher.ui.page.MainUIPage;
+import java.util.Optional;
+
+import static com.ss.launcher.Messages.ALERT_INFO_HEADER_TEXT_NEED_UPDATE_LAUNCHER;
+import static javafx.application.Platform.runLater;
 
 /**
  * Стартовый класс лаунчера.
- * 
+ *
  * @author Ronn
  */
 public class Launcher extends Application {
 
-	public static final String LAUNCHER_HOST = "http://spaceshift.ru/forum/index.php?topic=27328.0";
+    public static final String LAUNCHER_HOST = "http://spaceshift.ru/forum/index.php?topic=27328.0";
 
-	public static final String LINUX_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.png";
+    public static final String LINUX_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.png";
 
-	public static final String PROP_STYLE = "/com/ss/launcher/resources/css/style.css";
+    public static final String PROP_STYLE = "/com/ss/launcher/resources/css/style.css";
 
-	private static final Array<Class<? extends UIPage>> AVAILABLE_PAGE = ArrayFactory.newArray(Class.class);
+    private static final Array<Class<? extends UIPage>> AVAILABLE_PAGE = ArrayFactory.newArray(Class.class);
+    private static Launcher instance;
 
-	static {
-		AVAILABLE_PAGE.add(MainUIPage.class);
-	}
+    static {
+        AVAILABLE_PAGE.add(MainUIPage.class);
+    }
 
-	private static Launcher instance;
+    public static Launcher getInstance() {
+        return instance;
+    }
 
-	public static Launcher getInstance() {
-		return instance;
-	}
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-	public static void main(String[] args) {
-		launch(args);
-	}
+    /**
+     * Окно лаунчера.
+     */
+    private volatile UIWindow window;
 
-	/** окно лаунчера */
-	private volatile UIWindow window;
+    /**
+     * Проверка наличия обновленного лаунчера.
+     */
+    private void checkUpdate() {
+        final ExecutorManager executorManager = ExecutorManager.getInstance();
+        executorManager.async(this::checkVersion);
+    }
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
-		instance = this;
+    /**
+     * Проверка версии лаунчера.
+     */
+    private void checkVersion() {
 
-		Config.init();
-		FileEngineManager.init();
+        try {
 
-		checkUpdate();
+            final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
+            final String lastVersion = fileEngine.getContent(Config.FILE_LAUNCHER_LAST_VERSION_URL);
 
-		final ObservableList<Image> icons = primaryStage.getIcons();
-		icons.add(new Image(LINUX_ICON));
+            if (StringUtils.equals(lastVersion, Config.CURRENT_VERSION)) {
+                return;
+            }
 
-		window = new LauncherUIWindow(primaryStage, AVAILABLE_PAGE);
-		window.setTitle("SpaceShift Launcher");
-		window.loadStylesheets(PROP_STYLE);
-		window.showPage(MainUIPage.class);
+        } catch (Exception e) {
+            return;
+        }
 
-		primaryStage.setOnHidden(event -> System.exit(0));
-	}
+        runLater(this::showOutdatedVersion);
+    }
 
-	/**
-	 * Проверка наличия обновленного лаунчераю
-	 */
-	private void checkUpdate() {
+    /**
+     * Отображения сообщения об устаревшей версии.
+     */
+    private void showOutdatedVersion() {
 
-		final ExecutorManager executorManager = ExecutorManager.getInstance();
-		executorManager.async(() -> {
+        final Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle(Messages.ALERT_INFO_TITLE);
+        alert.setHeaderText(ALERT_INFO_HEADER_TEXT_NEED_UPDATE_LAUNCHER);
 
-			try {
+        final Optional<ButtonType> buttonType = alert.showAndWait();
 
-				final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
-				final String lastVersion = fileEngine.getContent(Config.FILE_LAUNCHER_LAST_VERSION_URL);
+        if (buttonType.get() == ButtonType.OK) {
+            final HostServices hostServices = getHostServices();
+            hostServices.showDocument(LAUNCHER_HOST);
+        }
+    }
 
-				if(StringUtils.equals(lastVersion, Config.CURRENT_VERSION)) {
-					return;
-				}
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        instance = this;
 
-			} catch(Exception e) {
-				return;
-			}
+        LoggerLevel.INFO.setEnabled(true);
+        LoggerLevel.DEBUG.setEnabled(false);
 
-			runLater(() -> {
+        Config.init();
+        FileEngineManager.init();
 
-				final Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle(Messages.ALERT_INFO_TITLE);
-				alert.setHeaderText(ALERT_INFO_HEADER_TEXT_NEED_UPDATE_LAUNCHER);
+        checkUpdate();
 
-				final Optional<ButtonType> buttonType = alert.showAndWait();
+        final ObservableList<Image> icons = primaryStage.getIcons();
+        icons.add(new Image(LINUX_ICON));
 
-				if(buttonType.get() == ButtonType.OK) {
-					final HostServices hostServices = getHostServices();
-					hostServices.showDocument(LAUNCHER_HOST);
-				}
-			});
-		});
-	}
+        window = new LauncherUIWindow(primaryStage, AVAILABLE_PAGE);
+        window.setTitle("SpaceShift Launcher");
+        window.loadStylesheets(PROP_STYLE);
+        window.showPage(MainUIPage.class);
+
+        primaryStage.setOnHidden(event -> System.exit(0));
+    }
 }

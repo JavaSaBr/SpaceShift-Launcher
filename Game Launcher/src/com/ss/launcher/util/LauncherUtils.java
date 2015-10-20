@@ -1,13 +1,25 @@
 package com.ss.launcher.util;
 
-import static com.ss.launcher.Config.PROP_CONFIG_URL;
-import static com.ss.launcher.Messages.ALERT_ERROR_TITLE;
-import static com.ss.launcher.Messages.INCORRECT_JAVA_EXCEPTION_MESSAGE_NEED_INSTALL_ORACLE;
-import static com.ss.launcher.Messages.INCORRECT_JAVA_EXCEPTION_MESSAGE_NOT_FOUND_JAVA;
-import static com.ss.launcher.Messages.INCORRECT_JAVA_EXCEPTION_MESSAGE_OLD_VERSION;
-import static com.ss.launcher.Messages.NOT_FOUND_CLIENT_EXCEPTION_MESSAGE_NEED_UPDATE;
-import static com.ss.launcher.Messages.RUNTIME_EXCEPTION_MESSAGE_CONNECT_PROBLEM;
-import static javafx.application.Platform.runLater;
+import com.ss.launcher.Config;
+import com.ss.launcher.exception.IncorrectJavaException;
+import com.ss.launcher.exception.NotFoundClientException;
+import com.ss.launcher.file.engine.FileEngine;
+import com.ss.launcher.file.engine.FileEngineManager;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.json.JSONObject;
+import rlib.logging.Logger;
+import rlib.logging.LoggerManager;
+import rlib.util.FileUtils;
+import rlib.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,297 +31,294 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.json.JSONObject;
-
-import rlib.logging.Logger;
-import rlib.logging.LoggerManager;
-import rlib.util.FileUtils;
-import rlib.util.StringUtils;
-
-import com.ss.launcher.Config;
-import com.ss.launcher.exception.IncorrectJavaException;
-import com.ss.launcher.exception.NotFoundClientException;
-import com.ss.launcher.file.engine.FileEngine;
-import com.ss.launcher.file.engine.FileEngineManager;
+import static com.ss.launcher.Config.PROP_CONFIG_URL;
+import static com.ss.launcher.Messages.*;
+import static javafx.application.Platform.runLater;
 
 /**
  * Набор утильных методов для лаунчера.
- * 
+ *
  * @author Ronn
  */
 public class LauncherUtils {
 
-	protected static final Logger LOGGER = LoggerManager.getLogger(LauncherUtils.class);
+    protected static final Logger LOGGER = LoggerManager.getLogger(LauncherUtils.class);
 
-	public static final String FOLDER_GAME = "game";
-	public static final String FOLDER_LOG = "log";
+    public static final String FOLDER_GAME = "game";
+    public static final String FOLDER_LOG = "log";
 
-	public static final String FILE_SPACESHIFT_JAR = "spaceshift.jar";
-	public static final String FILE_LAST_VERSION = "last_version";
+    public static final String FILE_SPACESHIFT_JAR = "spaceshift.jar";
+    public static final String FILE_LAST_VERSION = "last_version";
 
-	/**
-	 * @return получение файла для запуска клиента.
-	 */
-	public static Path getClientFile() {
+    /**
+     * @return получение файла для запуска клиента.
+     */
+    public static Path getClientFile() {
+        final Path gameFolder = getGameFolder();
+        return gameFolder.resolve(FILE_SPACESHIFT_JAR);
+    }
 
-		final Path gameFolder = getGameFolder();
-		final Path targetFile = Paths.get(gameFolder.toString(), FILE_SPACESHIFT_JAR);
+    /**
+     * @return конфигурация лаунчера.
+     */
+    public static JSONObject getConfig() {
 
-		return targetFile;
-	}
+        final HttpClient httpClient = HttpClients.createDefault();
+        try {
 
-	/**
-	 * @return текущая версия клиента.
-	 */
-	public static String getCurrentVersion() {
+            final HttpResponse response = httpClient.execute(new HttpGet(PROP_CONFIG_URL));
+            final StatusLine statusLine = response.getStatusLine();
 
-		final Path gameFolder = getGameFolder();
-		final Path file = Paths.get(gameFolder.toString(), FILE_LAST_VERSION);
+            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                throw new IOException();
+            }
 
-		if(!Files.exists(file)) {
-			return StringUtils.EMPTY;
-		}
+            final HttpEntity entity = response.getEntity();
+            final String jsonString = readStream(entity.getContent());
 
-		try {
+            return new JSONObject(jsonString);
 
-			String result = new String(Files.readAllBytes(file));
-			result = result.trim();
+        } catch (final IOException e) {
+            LauncherUtils.handleException(new RuntimeException(RUNTIME_EXCEPTION_MESSAGE_CONNECT_PROBLEM));
+        }
 
-			return result;
-		} catch(final IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        final JSONObject result = new JSONObject();
+        result.put(Config.PROP_FILE_ENGINE, "Yandex.Disk");
+        result.put(Config.PROP_FILE_CLIENT_LAST_VERSION_URL, "");
+        result.put(Config.PROP_FILE_CLIENT_URL, "");
+        result.put(Config.PROP_FILE_LAUNCHER_LAST_VERSION_URL, "");
 
-	/**
-	 * @return путь к папке с самим клиентом.
-	 */
-	public static Path getGameFolder() {
+        return result;
+    }
 
-		Path gameFolder = null;
+    /**
+     * @return текущая версия клиента.
+     */
+    public static String getCurrentVersion() {
 
-		if(Config.gameFolder == null) {
-			gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
-		} else {
-			gameFolder = Paths.get(Config.gameFolder);
-		}
+        final Path gameFolder = getGameFolder();
+        final Path versionFile = gameFolder.resolve(FILE_LAST_VERSION);
 
-		if(!Files.exists(gameFolder)) {
-			try {
-				Files.createDirectories(gameFolder);
-			} catch(IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+        if (!Files.exists(versionFile)) {
+            return StringUtils.EMPTY;
+        }
 
-		return gameFolder;
-	}
+        try {
 
-	public static String getSystemJavaVersion() {
+            String result = new String(Files.readAllBytes(versionFile));
+            result = result.trim();
 
-		Path tempFile = null;
+            return result;
 
-		try {
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			tempFile = Files.createTempFile("ss_launcher", "check_java_version");
+    /**
+     * @return путь к папке с самим клиентом.
+     */
+    public static Path getGameFolder() {
 
-			final ProcessBuilder builder = new ProcessBuilder("java", "-version");
-			builder.redirectOutput(tempFile.toFile());
-			builder.redirectError(tempFile.toFile());
+        Path gameFolder = null;
 
-			final Process start = builder.start();
-			final int result = start.waitFor();
+        if (Config.gameFolder == null) {
+            gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
+        } else {
+            gameFolder = Paths.get(Config.gameFolder);
+        }
 
-			if(result != 0) {
-				return null;
-			}
+        if (!Files.exists(gameFolder)) {
+            try {
+                Files.createDirectories(gameFolder);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-			final String content = new String(Files.readAllBytes(tempFile));
+        return gameFolder;
+    }
 
-			if(StringUtils.isEmpty(content) || !content.contains("java version")) {
-				return null;
-			}
+    public static String getSystemJavaVersion() {
+        LOGGER.debug("start check system version of java");
 
-			if(content.contains("OpenJDK")) {
-				return "OpenJDK";
-			}
+        Path tempFile = null;
 
-			final int startIndex = content.indexOf('"');
-			final int endIndex = content.lastIndexOf('"');
+        try {
 
-			return content.substring(startIndex + 1, endIndex);
+            tempFile = Files.createTempFile("ss_launcher", "check_java_version");
 
-		} catch(final Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			FileUtils.delete(tempFile);
-		}
-	}
+            final ProcessBuilder builder = new ProcessBuilder("java", "-version");
+            builder.redirectOutput(tempFile.toFile());
+            builder.redirectError(tempFile.toFile());
 
-	/**
-	 * Запуск клиента.
-	 */
-	public static void runClient(final Runnable startHandler, final Runnable finishHandler) {
+            final Process start = builder.start();
+            final int result = start.waitFor();
 
-		final Path targetFile = getClientFile();
+            LOGGER.debug("result check process = " + result);
 
-		if(!Files.exists(targetFile)) {
-			throw new NotFoundClientException(NOT_FOUND_CLIENT_EXCEPTION_MESSAGE_NEED_UPDATE);
-		}
+            if (result != 0) {
+                return null;
+            }
 
-		final String javaVersion = LauncherUtils.getSystemJavaVersion();
+            final String content = new String(Files.readAllBytes(tempFile));
 
-		if(javaVersion == null) {
-			throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_NOT_FOUND_JAVA);
-		} else if("OpenJDK".equals(javaVersion)) {
-			throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_NEED_INSTALL_ORACLE);
-		} else if(!(javaVersion.contains("1.8") || javaVersion.contains("1.9"))) {
-			throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_OLD_VERSION);
-		}
+            LOGGER.debug("result process content:\n" + content);
 
-		Platform.runLater(() -> startHandler.run());
+            if (StringUtils.isEmpty(content) || !content.contains("java version")) {
+                return null;
+            }
 
-		Thread fork = new Thread(() -> {
+            if (content.contains("OpenJDK")) {
+                return "OpenJDK";
+            }
 
-			final List<String> commands = new ArrayList<>();
-			commands.add("java");
-			commands.add("-jar");
-			commands.add("-XX:CompileThreshold=1000");
-			commands.add("-XX:+AggressiveOpts");
-			commands.add("-XX:+UseParallelGC");
-			commands.add("-XX:+UseTLAB");
-			commands.add("-Xmx3072m");
+            final String versionLine = content.substring(0, content.indexOf('\n'));
 
-			if(!StringUtils.isEmpty(Config.httpProxyHost)) {
-				commands.add("-Dhttp.proxyHost=" + Config.httpProxyHost);
-				commands.add("-Dhttp.proxyHost=" + Config.httpProxyPort);
-			}
+            LOGGER.debug("versionLine = " + versionLine);
 
-			commands.add(targetFile.toString());
+            final int startIndex = versionLine.indexOf('"');
+            final int endIndex = versionLine.lastIndexOf('"');
 
-			final ProcessBuilder builder = new ProcessBuilder(commands);
-			builder.inheritIO();
+            final String version = versionLine.substring(startIndex + 1, endIndex);
 
-			int result = 0;
+            LOGGER.debug("version = " + version);
 
-			try {
+            return version;
 
-				final Process process = builder.start();
-				result = process.waitFor();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            FileUtils.delete(tempFile);
+        }
+    }
 
-			} catch(IOException | InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+    /**
+     * Обработка ошибки.
+     */
+    public static void handleException(Exception e) {
+        runLater(() -> {
+            final Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle(ALERT_ERROR_TITLE);
+            alert.setHeaderText(e.getLocalizedMessage());
+            alert.showAndWait();
+        });
+    }
 
-			Platform.runLater(() -> finishHandler.run());
+    /**
+     * @return надо ли обновлять клиента.
+     */
+    public static boolean isNeedUpdate() {
 
-			if(result == -2) {
-				runClient(startHandler, finishHandler);
-			}
-		});
-		fork.start();
-	}
+        final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
 
-	/**
-	 * Обновление версии клиента.
-	 */
-	public static void updateVersion(final String newVersion) {
+        final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
+        final String currentVersion = LauncherUtils.getCurrentVersion();
 
-		final Path gameFolder = getGameFolder();
-		final Path file = Paths.get(gameFolder.toString(), FILE_LAST_VERSION);
+        return !StringUtils.equals(lastVersion, currentVersion);
+    }
 
-		try {
+    public static String readStream(InputStream in) {
 
-			if(!Files.exists(file)) {
-				Files.createFile(file);
-			}
+        String result = null;
 
-			try(PrintWriter print = new PrintWriter(Files.newOutputStream(file))) {
-				print.println(newVersion);
-			}
+        try (Scanner scanner = new Scanner(in)) {
 
-		} catch(final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+            final StringBuilder builder = new StringBuilder();
 
-	/**
-	 * @return надо ли обновлять клиента.
-	 */
-	public static boolean isNeedUpdate() {
+            while (scanner.hasNext()) {
+                builder.append(scanner.nextLine());
+            }
 
-		final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
+            result = builder.toString();
+        }
 
-		final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
-		final String currentVersion = LauncherUtils.getCurrentVersion();
+        return result;
+    }
 
-		return !StringUtils.equals(lastVersion, currentVersion);
-	}
+    /**
+     * Запуск клиента.
+     */
+    public static void runClient(final Runnable startHandler, final Runnable finishHandler) {
 
-	/**
-	 * @return конфигурация лаунчера.
-	 */
-	public static JSONObject getConfig() {
+        final Path targetFile = getClientFile();
 
-		final HttpClient httpClient = HttpClients.createDefault();
-		try {
+        if (!Files.exists(targetFile)) {
+            throw new NotFoundClientException(NOT_FOUND_CLIENT_EXCEPTION_MESSAGE_NEED_UPDATE);
+        }
 
-			HttpResponse response = httpClient.execute(new HttpGet(PROP_CONFIG_URL));
-			HttpEntity entity = response.getEntity();
+        final String javaVersion = LauncherUtils.getSystemJavaVersion();
 
-			final String jsonString = readStream(entity.getContent());
-			final JSONObject object = new JSONObject(jsonString);
+        if (javaVersion == null) {
+            throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_NOT_FOUND_JAVA);
+        } else if ("OpenJDK".equals(javaVersion)) {
+            throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_NEED_INSTALL_ORACLE);
+        } else if (!(javaVersion.contains("1.8") || javaVersion.contains("1.9"))) {
+            throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_OLD_VERSION);
+        }
 
-			return object;
-		} catch(final IOException e) {
-			LauncherUtils.handleException(new RuntimeException(RUNTIME_EXCEPTION_MESSAGE_CONNECT_PROBLEM));
-		}
+        Platform.runLater(() -> startHandler.run());
 
-		final JSONObject result = new JSONObject();
-		result.put(Config.PROP_FILE_ENGINE, "Yandex.Disk");
-		result.put(Config.PROP_FILE_CLIENT_LAST_VERSION_URL, "");
-		result.put(Config.PROP_FILE_CLIENT_URL, "");
-		result.put(Config.PROP_FILE_LAUNCHER_LAST_VERSION_URL, "");
+        Thread fork = new Thread(() -> {
 
-		return result;
-	}
+            final List<String> commands = new ArrayList<>();
+            commands.add("java");
+            commands.add("-jar");
+            commands.add("-XX:CompileThreshold=1000");
+            commands.add("-XX:+AggressiveOpts");
+            commands.add("-XX:+UseParallelGC");
+            commands.add("-XX:+UseTLAB");
 
-	public static String readStream(InputStream in) {
+            if (!StringUtils.isEmpty(Config.httpProxyHost)) {
+                commands.add("-Dhttp.proxyHost=" + Config.httpProxyHost);
+                commands.add("-Dhttp.proxyHost=" + Config.httpProxyPort);
+            }
 
-		String result = null;
+            commands.add(targetFile.toString());
 
-		try(Scanner scanner = new Scanner(in)) {
+            final ProcessBuilder builder = new ProcessBuilder(commands);
+            builder.inheritIO();
 
-			final StringBuilder builder = new StringBuilder();
+            int result = 0;
 
-			while(scanner.hasNext()) {
-				builder.append(scanner.nextLine());
-			}
+            try {
 
-			result = builder.toString();
-		}
+                final Process process = builder.start();
+                result = process.waitFor();
 
-		return result;
-	}
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
-	/**
-	 * Обработка ошибки.
-	 */
-	public static void handleException(Exception e) {
-		runLater(() -> {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle(ALERT_ERROR_TITLE);
-			alert.setHeaderText(e.getLocalizedMessage());
-			alert.showAndWait();
-		});
-	}
+            Platform.runLater(() -> finishHandler.run());
+
+            if (result == -2) {
+                runClient(startHandler, finishHandler);
+            }
+        });
+        fork.start();
+    }
+
+    /**
+     * Обновление версии клиента.
+     */
+    public static void updateVersion(final String newVersion) {
+
+        final Path gameFolder = getGameFolder();
+        final Path file = Paths.get(gameFolder.toString(), FILE_LAST_VERSION);
+
+        try {
+
+            if (!Files.exists(file)) {
+                Files.createFile(file);
+            }
+
+            try (PrintWriter print = new PrintWriter(Files.newOutputStream(file))) {
+                print.println(newVersion);
+            }
+
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
