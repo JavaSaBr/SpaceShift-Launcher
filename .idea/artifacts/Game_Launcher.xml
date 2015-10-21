@@ -1,0 +1,22 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="Game Launcher">
+    <output-path>$PROJECT_DIR$/Game Launcher/build/test/</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.ss.launcher.Launcher" />
+        <option name="convertCss2Bin" value="true" />
+        <option name="description" value="" />
+        <option name="htmlParamFile" value="" />
+        <option name="nativeBundle" value="all" />
+        <option name="paramFile" value="" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="Game_Launcher.jar">
+        <element id="module-output" name="Game Launcher" />
+      </element>
+    </root>
+  </artifact>
+</component>
