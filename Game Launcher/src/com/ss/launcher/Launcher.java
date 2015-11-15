@@ -31,13 +31,12 @@ import static javafx.application.Platform.runLater;
  */
 public class Launcher extends Application {
 
-    public static final String LAUNCHER_HOST = "http://spaceshift.ru/forum/index.php?topic=27328.0";
-
     public static final String LINUX_ICON = "/com/ss/launcher/resources/icons/SpaceShiftLauncher.png";
 
     public static final String PROP_STYLE = "/com/ss/launcher/resources/css/style.css";
 
     private static final Array<Class<? extends UIPage>> AVAILABLE_PAGE = ArrayFactory.newArray(Class.class);
+
     private static Launcher instance;
 
     static {
@@ -49,6 +48,7 @@ public class Launcher extends Application {
     }
 
     public static void main(String[] args) {
+        Config.initPreferences();
         launch(args);
     }
 
@@ -72,8 +72,8 @@ public class Launcher extends Application {
 
         try {
 
-            final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
-            final String lastVersion = fileEngine.getContent(Config.FILE_LAUNCHER_LAST_VERSION_URL);
+            final FileEngine fileEngine = FileEngineManager.get(Config.fileEngine);
+            final String lastVersion = fileEngine.getContent(Config.fileLauncherLastVersionUrl);
 
             if (StringUtils.equals(lastVersion, Config.CURRENT_VERSION)) {
                 return;
@@ -99,7 +99,7 @@ public class Launcher extends Application {
 
         if (buttonType.get() == ButtonType.OK) {
             final HostServices hostServices = getHostServices();
-            hostServices.showDocument(LAUNCHER_HOST);
+            hostServices.showDocument(Config.updateLauncherUrl);
         }
     }
 
@@ -110,7 +110,7 @@ public class Launcher extends Application {
         LoggerLevel.INFO.setEnabled(true);
         LoggerLevel.DEBUG.setEnabled(false);
 
-        Config.init();
+        Config.initConfig();
         FileEngineManager.init();
 
         checkUpdate();

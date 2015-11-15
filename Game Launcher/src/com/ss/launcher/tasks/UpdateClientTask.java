@@ -30,7 +30,7 @@ import static javafx.application.Platform.runLater;
 public class UpdateClientTask implements SafeTask {
 
     /**
-     * главная страница лаунчера
+     * Главная страница лаунчера.
      */
     private final MainUIPage page;
 
@@ -55,23 +55,23 @@ public class UpdateClientTask implements SafeTask {
 
         try {
 
-            final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
-            final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
+            final FileEngine fileEngine = FileEngineManager.get(Config.fileEngine);
+            final String lastVersion = fileEngine.getContent(Config.fileClientLastVersionUrl);
 
             runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_UPDATE_CLIENT + " " + lastVersion));
             runLater(() -> progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS));
 
             final Path gameFolder = LauncherUtils.getGameFolder();
 
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(gameFolder)) {
-                stream.forEach(file -> FileUtils.delete(file));
+            try (final DirectoryStream<Path> stream = Files.newDirectoryStream(gameFolder)) {
+                stream.forEach(FileUtils::delete);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             byte[] buffer = new byte[512];
 
-            try (ZipInputStream zin = new ZipInputStream(fileEngine.getInputStream(Config.FILE_CLIENT_URL))) {
+            try (ZipInputStream zin = new ZipInputStream(fileEngine.getInputStream(Config.fileClientUrl))) {
 
                 for (ZipEntry entry = zin.getNextEntry(); entry != null && zin.available() != -1; entry = zin.getNextEntry()) {
 
@@ -97,30 +97,30 @@ public class UpdateClientTask implements SafeTask {
                     }
 
                     long size = entry.getSize();
-                    long writed = 0;
+                    long wrote = 0;
                     long lastUpdate = 0;
 
                     runLater(() -> progressBar.setProgress(0));
 
-                    try (OutputStream out = Files.newOutputStream(entryPath)) {
+                    try (final OutputStream out = Files.newOutputStream(entryPath)) {
                         for (int length = zin.read(buffer); length > 0; length = zin.read(buffer)) {
 
                             out.write(buffer, 0, length);
-                            writed += length;
+                            wrote += length;
 
-                            if (writed - lastUpdate < 10000) {
+                            if (wrote - lastUpdate < 10000) {
                                 continue;
                             }
 
-                            final double progress = writed * 1D / size;
+                            final double progress = wrote * 1D / size;
 
                             final String printSize = String.format("%.2f", (size / 1024D / 1024D));
-                            final String printWrited = String.format("%.2f", (writed / 1024D / 1024D));
+                            final String printWrote = String.format("%.2f", (wrote / 1024D / 1024D));
 
                             runLater(() -> progressBar.setProgress(progress));
-                            runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName() + " (" + printWrited + "Mb / " + printSize + "Mb)"));
+                            runLater(() -> progressBarStatus.setText(MAIN_PAGE_STATUS_DOWNLOAD + " " + toPrint.getName() + " (" + printWrote + "Mb / " + printSize + "Mb)"));
 
-                            lastUpdate = writed;
+                            lastUpdate = wrote;
                         }
                     }
 
@@ -139,7 +139,7 @@ public class UpdateClientTask implements SafeTask {
             LauncherUtils.handleException(e);
         } finally {
             runLater(() -> progressBar.setProgress(0));
-            runLater(() -> page.updateMainButton());
+            runLater(page::updateMainButton);
         }
     }
 }

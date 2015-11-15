@@ -1,8 +1,8 @@
 package com.ss.launcher.file.engine.impl;
 
 import com.ss.launcher.file.engine.FileEngine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
+import com.ss.launcher.util.LauncherUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,20 +14,12 @@ import java.net.URLEncoder;
  */
 public abstract class AbstractFileEngine implements FileEngine {
 
-    private static final ThreadLocal<HttpClient> LOCAL_HTTP_CLIENT = new ThreadLocal<HttpClient>() {
-
-        @Override
-        protected HttpClient initialValue() {
-            return HttpClients.createDefault();
-        }
-    };
-
     public String buildUrl(String baseUrl, String... params) {
 
         StringBuilder builder = new StringBuilder(baseUrl);
 
         if (params == null || params.length < 2) {
-            return baseUrl.toString();
+            return builder.toString();
         }
 
         builder.append('?');
@@ -54,7 +46,7 @@ public abstract class AbstractFileEngine implements FileEngine {
         return builder.toString();
     }
 
-    protected HttpClient getHttpClient() {
-        return LOCAL_HTTP_CLIENT.get();
+    protected CloseableHttpClient getHttpClient() {
+        return LauncherUtils.createHttpClient();
     }
 }

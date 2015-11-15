@@ -12,9 +12,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.json.JSONObject;
 import rlib.logging.Logger;
 import rlib.logging.LoggerManager;
@@ -24,6 +26,7 @@ import rlib.util.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.ProxySelector;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static com.ss.launcher.Config.PROP_CONFIG_URL;
+import static com.ss.launcher.Config.CONFIG_URL;
 import static com.ss.launcher.Messages.*;
 import static javafx.application.Platform.runLater;
 
@@ -63,10 +66,9 @@ public class LauncherUtils {
      */
     public static JSONObject getConfig() {
 
-        final HttpClient httpClient = HttpClients.createDefault();
-        try {
+        try(final CloseableHttpClient httpClient = createHttpClient()) {
 
-            final HttpResponse response = httpClient.execute(new HttpGet(PROP_CONFIG_URL));
+            final HttpResponse response = httpClient.execute(new HttpGet(CONFIG_URL));
             final StatusLine statusLine = response.getStatusLine();
 
             if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -87,6 +89,8 @@ public class LauncherUtils {
         result.put(Config.PROP_FILE_CLIENT_LAST_VERSION_URL, "");
         result.put(Config.PROP_FILE_CLIENT_URL, "");
         result.put(Config.PROP_FILE_LAUNCHER_LAST_VERSION_URL, "");
+        result.put(Config.PROP_UPDATE_LAUNCHER_URL, "https://spaceshift.ru/forum/index.php?topic=910.0");
+        result.put(Config.PROP_INDEX_HTML_URL, "https://spaceshift.ru/upd/index.html");
 
         return result;
     }
@@ -120,7 +124,7 @@ public class LauncherUtils {
      */
     public static Path getGameFolder() {
 
-        Path gameFolder = null;
+        Path gameFolder;
 
         if (Config.gameFolder == null) {
             gameFolder = Paths.get(System.getProperty("user.home"), ".ss_launcher", FOLDER_GAME);
@@ -210,9 +214,9 @@ public class LauncherUtils {
      */
     public static boolean isNeedUpdate() {
 
-        final FileEngine fileEngine = FileEngineManager.get(Config.FILE_ENGINE);
+        final FileEngine fileEngine = FileEngineManager.get(Config.fileEngine);
 
-        final String lastVersion = fileEngine.getContent(Config.FILE_CLIENT_LAST_VERSION_URL);
+        final String lastVersion = fileEngine.getContent(Config.fileClientLastVersionUrl);
         final String currentVersion = LauncherUtils.getCurrentVersion();
 
         return !StringUtils.equals(lastVersion, currentVersion);
@@ -257,7 +261,7 @@ public class LauncherUtils {
             throw new IncorrectJavaException(INCORRECT_JAVA_EXCEPTION_MESSAGE_OLD_VERSION);
         }
 
-        Platform.runLater(() -> startHandler.run());
+        Platform.runLater(startHandler::run);
 
         Thread fork = new Thread(() -> {
 
@@ -290,7 +294,7 @@ public class LauncherUtils {
                 throw new RuntimeException(e);
             }
 
-            Platform.runLater(() -> finishHandler.run());
+            Platform.runLater(finishHandler::run);
 
             if (result == -2) {
                 runClient(startHandler, finishHandler);
@@ -320,5 +324,19 @@ public class LauncherUtils {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static CloseableHttpClient createHttpClient() {
+
+        if(StringUtils.isEmpty(Config.httpProxyHost)) {
+            return HttpClients.createDefault();
+        }
+
+        final SystemDefaultRoutePlanner routePlanner = new SystemDefaultRoutePlanner(ProxySelector.getDefault());
+
+        HttpClientBuilder custom = HttpClients.custom();
+        custom = custom.setRoutePlanner(routePlanner);
+
+        return custom.build();
     }
 }

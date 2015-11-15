@@ -12,7 +12,7 @@ import rlib.util.dictionary.ObjectDictionary;
 public class FileEngineManager {
 
     /**
-     * таблица доступных движков
+     * Таблица доступных движков.
      */
     private static final ObjectDictionary<String, FileEngine> ENGINES = DictionaryFactory.newObjectDictionary();
 

@@ -11,7 +11,6 @@ import com.ss.launcher.ui.dialog.SettingsDialog;
 import com.ss.launcher.util.LauncherUtils;
 import javafx.application.HostServices;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
@@ -59,7 +58,6 @@ public class MainUIPage extends AbstractUIPage {
     public static final String FOLDER_SPACE_SHIFT_CLIENT = "SpaceShiftClient";
 
     public static final String PROP_DEFAULT_HTML = "/com/ss/launcher/resources/welcome.html";
-    public static final String PROP_INDEX_HTML = "http://spaceshift.ru/upd/index.html";
 
     public static final String EVENT_TYPE_CLICK = "click";
 
@@ -211,13 +209,11 @@ public class MainUIPage extends AbstractUIPage {
         webView.setMinHeight(PROP_WEB_VIEW_HEIGHT);
 
         final WebEngine engine = webView.getEngine();
-        engine.setCreatePopupHandler(features -> {
-            return null;
-        });
+        engine.setCreatePopupHandler(features -> null);
 
         final Worker<Void> loadWorker = engine.getLoadWorker();
         final ReadOnlyObjectProperty<State> stateProperty = loadWorker.stateProperty();
-        stateProperty.addListener((ChangeListener<State>) (observable, oldValue, newValue) -> {
+        stateProperty.addListener((observable, oldValue, newValue) -> {
 
             if (newValue == State.FAILED) {
                 engine.load(getClass().getResource(PROP_DEFAULT_HTML).toExternalForm());
@@ -232,7 +228,7 @@ public class MainUIPage extends AbstractUIPage {
             }
         });
 
-        engine.load(PROP_INDEX_HTML);
+        engine.load(Config.indexHtmlUrl);
 
         final HBox container = new HBox();
         container.setAlignment(CENTER);

@@ -3,8 +3,8 @@ package com.ss.launcher.file.engine.yandex.disk;
 import com.ss.launcher.file.engine.impl.AbstractFileEngine;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -33,8 +33,7 @@ public class YandexDiskFileEngine extends AbstractFileEngine {
 
         final String targetUrl = buildUrl(PROP_BASE_URL, PARAM_PUBLIC_KEY, url);
 
-        final HttpClient httpClient = getHttpClient();
-        try {
+        try(final CloseableHttpClient httpClient = getHttpClient()) {
 
             HttpResponse response = httpClient.execute(new HttpGet(targetUrl));
             HttpEntity entity = response.getEntity();
