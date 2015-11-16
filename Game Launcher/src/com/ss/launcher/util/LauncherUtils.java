@@ -78,7 +78,33 @@ public class LauncherUtils {
             final HttpEntity entity = response.getEntity();
             final String jsonString = readStream(entity.getContent());
 
-            return new JSONObject(jsonString);
+            final JSONObject result = new JSONObject(jsonString);
+
+            if(!result.has(Config.PROP_FILE_ENGINE)) {
+                result.put(Config.PROP_FILE_ENGINE, "Yandex.Disk");
+            }
+
+            if(!result.has(Config.PROP_FILE_CLIENT_LAST_VERSION_URL)) {
+                result.put(Config.PROP_FILE_CLIENT_LAST_VERSION_URL, "");
+            }
+
+            if(!result.has(Config.PROP_FILE_CLIENT_URL)) {
+                result.put(Config.PROP_FILE_CLIENT_URL, "");
+            }
+
+            if(!result.has(Config.PROP_FILE_LAUNCHER_LAST_VERSION_URL)) {
+                result.put(Config.PROP_FILE_LAUNCHER_LAST_VERSION_URL, "");
+            }
+
+            if(!result.has(Config.PROP_UPDATE_LAUNCHER_URL)) {
+                result.put(Config.PROP_UPDATE_LAUNCHER_URL, "https://spaceshift.ru/forum/index.php?topic=910.0");
+            }
+
+            if(!result.has(Config.PROP_INDEX_HTML_URL)) {
+                result.put(Config.PROP_INDEX_HTML_URL, "https://spaceshift.ru/upd/index.html");
+            }
+
+            return result;
 
         } catch (final IOException e) {
             LauncherUtils.handleException(new RuntimeException(RUNTIME_EXCEPTION_MESSAGE_CONNECT_PROBLEM));

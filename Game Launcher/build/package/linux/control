@@ -1,0 +1,10 @@
+Package: spaceshift-launcher
+Version: 1.4
+Section: games
+Maintainer: spaceshift.ru <javasabr@gmail.com>
+Priority: optional
+Architecture: amd64
+Provides: spaceshift-launcher
+Installed-Size: 194366
+Homepage: https://spaceshift.ru/
+Description: Launcher for MMO Game SpaceShift
