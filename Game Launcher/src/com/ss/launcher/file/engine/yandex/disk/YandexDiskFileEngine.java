@@ -32,8 +32,8 @@ public class YandexDiskFileEngine extends AbstractFileEngine {
     public InputStream getInputStream(final String url) {
 
         final String targetUrl = buildUrl(PROP_BASE_URL, PARAM_PUBLIC_KEY, url);
-
-        try(final CloseableHttpClient httpClient = getHttpClient()) {
+        final CloseableHttpClient httpClient = getHttpClient();
+        try {
 
             HttpResponse response = httpClient.execute(new HttpGet(targetUrl));
             HttpEntity entity = response.getEntity();
