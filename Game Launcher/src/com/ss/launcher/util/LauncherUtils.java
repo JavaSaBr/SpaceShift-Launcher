@@ -217,7 +217,7 @@ public class LauncherUtils {
             return version;
 
         } catch (final Exception e) {
-            throw new RuntimeException(e);
+            return null;
         } finally {
             FileUtils.delete(tempFile);
         }
