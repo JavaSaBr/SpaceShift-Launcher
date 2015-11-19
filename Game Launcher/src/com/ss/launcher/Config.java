@@ -29,7 +29,7 @@ public class Config {
     public static final String PREF_HTTP_PROXY_HOST = "httpProxyHost";
     public static final String PREF_HTTP_PROXY_PORT = "httProxyPort";
 
-    public static String CURRENT_VERSION = "1.4";
+    public static String CURRENT_VERSION = "1.5";
 
     /**
      * URL файла с актуальной версией клиента.

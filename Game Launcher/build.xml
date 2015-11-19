@@ -97,7 +97,7 @@
                         name="SpaceShift Launcher"
                         mainClass="com.ss.launcher.Launcher"
                         toolkit="fx"
-                        version="1.4"
+                        version="1.5"
                 />
 
         <mkdir dir="build/classes/META-INF"/>
@@ -110,7 +110,7 @@
             <manifest>
                 <attribute name="Implementation-Vendor" value="spaceshift.ru"/>
                 <attribute name="Implementation-Title" value="SpaceShift Launcher"/>
-                <attribute name="Implementation-Version" value="1.4"/>
+                <attribute name="Implementation-Version" value="1.5"/>
             </manifest>
         </fx:jar>
 
